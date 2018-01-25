@@ -34,7 +34,7 @@ angular.module('DashIFTestVectorsService', ['ngResource']).factory('dashifTestVe
 });
 
 app.controller('DashController', function ($scope, sources, contributors, dashifTestVectors) {
-    $.getJSON("events.json", function (json_data) {
+    $scope.events_promise = $.getJSON("events.json", function (json_data) {
         $scope.$apply(function () {
             $scope.availableStreams = json_data;
         });
@@ -54,11 +54,13 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     };
 
     $scope.on_page_load = function () {
-        $scope.event_click($scope.availableStreams[0]).done(function() {
-            if ($scope.stream_list.length) {
-                $scope.stream_click($scope.stream_list[0]);
-            }
-            $scope.doLoad();
+        $scope.events_promise.done(function() {
+            $scope.event_click($scope.availableStreams[0]).done(function () {
+                if ($scope.stream_list.length) {
+                    $scope.stream_click($scope.stream_list[0]);
+                }
+                $scope.doLoad();
+            });
         });
     };
 
