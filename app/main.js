@@ -202,7 +202,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     $scope.loopSelected = true;
     $scope.scheduleWhilePausedSelected = true;
     $scope.localStorageSelected = true;
-    $scope.fastSwitchSelected = true;
+    $scope.fastSwitchSelected = false;
     $scope.ABRStrategy = 'abrDynamic';
 
     ////////////////////////////////////////
