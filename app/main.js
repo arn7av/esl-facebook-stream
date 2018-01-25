@@ -40,21 +40,12 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
         });
     });
 
-    $.getJSON("config.json", function (json_data) {
-        $scope.$apply(function () {
-            $scope.selectedItem = {
-                url: json_data['default_stream']
-            };
-            $scope.root_url = json_data['root_url'];
-        });
-    });
-
     $scope.stream_list = [];
 
     $scope.event_click = function (item) {
         console.log(item);
         var get_streams_url = $scope.root_url + 'streams/' + item['event_id'];
-        $.getJSON(get_streams_url, function (data) {
+        return $.getJSON(get_streams_url, function (data) {
             console.log(data);
             $scope.$apply(function () {
                 $scope.stream_list = data;
@@ -62,9 +53,30 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
         });
     };
 
+    $scope.on_page_load = function () {
+        $scope.event_click($scope.availableStreams[0]).done(function() {
+            if ($scope.stream_list.length) {
+                $scope.stream_click($scope.stream_list[0]);
+            }
+            $scope.doLoad();
+        });
+    };
+
+    $.getJSON("config.json", function (json_data) {
+        $scope.$apply(function () {
+            $scope.selectedItem = {
+                url: json_data['default_stream'],
+                title: 'Default Stream'
+            };
+            $scope.root_url = json_data['root_url'];
+            $scope.on_page_load();
+        });
+    });
+
     $scope.stream_click = function (item) {
         console.log(item);
         $scope.selectedItem.url = item['video_stream'];
+        $scope.selectedItem.title = item['stream_name'];
         $scope.doLoad();
     };
 

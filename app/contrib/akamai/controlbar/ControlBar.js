@@ -391,7 +391,8 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
             var contentFunc;
             //Bitrate Menu
             if (bitrateListBtn) {
-                destroyBitrateMenu();
+                // fix for disappearing bitrate menu
+                // destroyBitrateMenu();
 
                 var availableBitrates = {menuType: 'bitrate'};
                 availableBitrates.audio = player.getBitrateInfoListFor("audio") || [];
