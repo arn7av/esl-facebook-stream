@@ -54,12 +54,13 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     };
 
     $scope.on_page_load = function () {
-        $scope.events_promise.done(function() {
+        $scope.events_promise.done(function () {
             $scope.event_click($scope.availableStreams[0]).done(function () {
                 if ($scope.stream_list.length) {
                     $scope.stream_click($scope.stream_list[0]);
+                } else {
+                    $scope.doLoad();
                 }
-                $scope.doLoad();
             });
         });
     };
@@ -81,6 +82,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
         $scope.selectedItem.title = item['stream_name'];
         $scope.doLoad();
     };
+
 
     $scope.chartOptions = {
         legend: {
