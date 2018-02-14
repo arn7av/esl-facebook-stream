@@ -23,7 +23,7 @@ def get_facebook_stream_url(facebook_video_url):
     video_stream_regex = re.search(r'hd_src:"(.*?)"', video_page_text)
     if video_stream_regex:
         video_stream_probable_url = video_stream_regex.group(1)
-        if len(video_stream_probable_url) < 256:
+        if len(video_stream_probable_url) < 1024:
             return video_stream_probable_url
 
 
@@ -45,7 +45,7 @@ def get_facebook_stream_url_new(facebook_video_url):
     if video_stream_regex:
         video_stream_probable_url_escaped = video_stream_regex.group(1)
         video_stream_probable_url = re.sub(r'\\(.)', r'\1', video_stream_probable_url_escaped)
-        if len(video_stream_probable_url) < 256:
+        if len(video_stream_probable_url) < 1024:
             return video_stream_probable_url
 
 
