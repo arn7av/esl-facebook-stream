@@ -2,7 +2,7 @@
 <html ng-app="DashPlayer" lang="en">
 <head>
     <meta charset="utf-8"/>
-    <title>ESL Facebook</title>
+    <title>Dash JavaScript Player</title>
     <meta name="description" content="" />
     <link rel="icon" type="image/x-icon" href="http://dashif.org/wp-content/uploads/2014/12/dashif.ico" />
     <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no">
@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="app/lib/bootstrap/css/bootstrap-theme.css">
     <link rel="stylesheet" href="app/lib/bootstrap/css/bootstrap-glyphicons.css">
     <link rel="stylesheet" href="app/css/main.css">
-    <link rel="stylesheet" href="app/contrib/akamai/controlbar/controlbar.css">
+    <link rel="stylesheet" href="../../contrib/akamai/controlbar/controlbar.css">
 
     <!--Libs-->
     <script src="app/lib/jquery/jquery-3.1.1.min.js"></script>
@@ -26,8 +26,8 @@
     <script src="app/lib/flot/jquery.flot.resize.min.js"></script>
     <script src="app/lib/flot/jquery.flot.axislabels.js"></script>
     <!-- App -->
-    <script src="app/dist/dash.all.min.js"></script>
-    <script src="app/contrib/akamai/controlbar/ControlBar.js"></script>
+    <script src="../../dist/dash.all.debug.js"></script>
+    <script src="../../contrib/akamai/controlbar/ControlBar.js"></script>
     <script src="app/main.js"></script>
     <script src="app/rules/DownloadRatioRule.js"></script>
     <script src="app/rules/ThroughputRule.js"></script>
@@ -40,8 +40,22 @@
         <div class="modal-dialog">
             <div class="list-group modal-list">
               <ul>
-                  <li ng-repeat="item in availableStreams">
-                    <span ng-click="event_click(item)" data-dismiss="modal">{{item.event_name}}</span>
+                  <li ng-repeat="item in availableStreams" ng-class="{'sub':item.submenu}">
+                    <span ng-show="!item.submenu" ng-click="setStream(item)">{{item.name}}</span>
+                    <span ng-show="item.submenu">{{item.name}}</span>
+                    <ul ng-show="item.submenu">
+                        <li ng-repeat="subitem in item.submenu">
+                            <span ng-click="setStream(subitem)" ng-if="subitem.url"
+                                  data-dismiss="modal">{{subitem.name}}</span>
+                            <span ng-if="!subitem.url">{{subitem.name}}</span>
+                            <ul ng-if="subitem.submenu">
+                                <li ng-repeat="subsubitem in subitem.submenu">
+                                    <span ng-click="setStream(subsubitem)"
+                                        data-dismiss="modal">{{subsubitem.name}}</span>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
                   </li>
               </ul>
             </div>
@@ -54,12 +68,22 @@
         <div class="row title-header">
 
             <div class="branding">
-              <span id="big-title">ESL Facebook</span>
-              <span id="commit-info">Playing {{selectedItem.title}}</span>
+              <a href="http://dashif.org/" target="_blank"><img class="image" src="app/img/if.png"/></a>
+              <span id="big-title">Reference Client</span>
+                <span ng-bind="version"></span>
+                <span id="commit-info"><!-- commit-info --></span>
             </div>
 
             <!-- Using iframe to solve pre-flight request issue from GIT-->
             <div class="top-buttons">
+                <iframe id="star-button"
+                        src="//ghbtns.com/github-btn.html?user=Dash-Industry-Forum&repo=dash.js&type=watch&count=true&size=large"
+                        height="30" width="150">
+                </iframe>
+                <iframe id="fork-button"
+                        src="//ghbtns.com/github-btn.html?user=Dash-Industry-Forum&repo=dash.js&type=fork&count=true&size=large"
+                        height="30" width="150" >
+                </iframe>
             </div>
         </div>
 
@@ -67,31 +91,34 @@
             <div class="input-group">
                 <div id="desktop-streams" class="input-group-btn">
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                        Match <span class="caret"></span>
+                        Stream <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
-                        <li ng-repeat="item in availableStreams">
-                            <a tabindex="-1" href="#" ng-click="event_click(item)">{{item.event_name}}</a>
+                        <li class="dropdown-submenu" ng-if="item.submenu" ng-repeat="item in availableStreams" ng-mouseover="onStreamItemHover(item)">
+                            <a tabindex="-1" href="#">{{item.name}}</a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-submenu" ng-repeat="subitem in item.submenu" ng-if="subitem.submenu">
+                                    <a tabindex="-1" href="#">{{subitem.name}}</a>
+                                    <ul class="dropdown-menu">
+                                        <li ng-repeat="subsubitem in subitem.submenu">
+                                            <a title="{{ subsubitem.moreInfo && 'See ' + subsubitem.moreInfo + ' for more information' || undefined }}"
+                                               ng-click="setStream(subsubitem)">{{subsubitem.name}}</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li ng-repeat="subitem in item.submenu" ng-if="subitem.url">
+                                    <a title="{{ subitem.moreInfo && 'See ' + subitem.moreInfo + ' for more information' || undefined }}"
+                                       ng-click="setStream(subitem)">{{subitem.name}}</a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
                 <div id="mobile-streams" class="input-group-btn">
                     <button type="button" class="btn btn-primary" data-toggle="modal" href="#streamModal">
-                        Match <span class="caret"></span>
-                    </button>
-                </div>
-
-                <div id="desktop-streams-2" class="input-group-btn" ng-if="stream_list.length">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                         Stream <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
-                        <li ng-repeat="item in stream_list">
-                            <a tabindex="-1" href="#" ng-click="stream_click(item)">{{item.stream_name}}</a>
-                        </li>
-                    </ul>
                 </div>
-
                 <input type="text" class="form-control" ng-model="selectedItem.url">
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="toggleOptionsGutter(!optionsGutter)" ng-cloak>{{getOptionsButtonLabel()}}</button>
@@ -402,11 +429,11 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <!--<h3 class="footer-text">Contributors:</h3>-->
-                    <!--<a ng-repeat="item in contributors" class="footer-text" href="{{item.link}}" target="_blank">-->
-                        <!--<img ng-show="hasLogo(item)" ng-src="{{item.logo}}" alt="{{item.link}}"/>-->
-                        <!--<span class="contributor" ng-show="!hasLogo(item)">{{item.name}}</span>-->
-                    <!--</a>-->
+                    <h3 class="footer-text">Contributors:</h3>
+                    <a ng-repeat="item in contributors" class="footer-text" href="{{item.link}}" target="_blank">
+                        <img ng-show="hasLogo(item)" ng-src="{{item.logo}}" alt="{{item.link}}"/>
+                        <span class="contributor" ng-show="!hasLogo(item)">{{item.name}}</span>
+                    </a>
                 </div>
             </div>
         </div>

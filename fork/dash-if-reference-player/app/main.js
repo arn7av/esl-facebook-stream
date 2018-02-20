@@ -34,55 +34,34 @@ angular.module('DashIFTestVectorsService', ['ngResource']).factory('dashifTestVe
 });
 
 app.controller('DashController', function ($scope, sources, contributors, dashifTestVectors) {
-    $scope.events_promise = $.getJSON("events.json", function (json_data) {
-        $scope.$apply(function () {
-            $scope.availableStreams = json_data;
-        });
-    });
-
-    $scope.stream_list = [];
-
-    $scope.event_click = function (item) {
-        console.log(item);
-        var get_streams_url = $scope.root_url + 'streams/' + item['event_id'];
-        return $.getJSON(get_streams_url, function (data) {
-            console.log(data);
-            $scope.$apply(function () {
-                $scope.stream_list = data;
-            });
-        });
+    $scope.selectedItem = {
+        url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
     };
 
-    $scope.on_page_load = function () {
-        $scope.events_promise.done(function () {
-            $scope.event_click($scope.availableStreams[0]).done(function () {
-                if ($scope.stream_list.length) {
-                    $scope.stream_click($scope.stream_list[0]);
-                } else {
-                    $scope.doLoad();
+    sources.query(function (data) {
+        $scope.availableStreams = data.items;
+        // if no mss package, remove mss samples.
+        let MssHandler = dashjs.MssHandler; /* jshint ignore:line */
+        if (typeof MssHandler !== 'function') {
+            for (var i = $scope.availableStreams.length - 1; i >= 0; i--) {
+                if ($scope.availableStreams[i].name === 'Smooth Streaming') {
+                    $scope.availableStreams.splice(i, 1);
                 }
-            });
-        });
-    };
+            }
+        }
 
-    $.getJSON("config.json", function (json_data) {
-        $scope.$apply(function () {
-            $scope.selectedItem = {
-                url: json_data['default_stream'],
-                title: 'Default Stream'
-            };
-            $scope.root_url = json_data['root_url'];
-            $scope.on_page_load();
+        // DASH Industry Forum Test Vectors
+        dashifTestVectors.query(function(data) {
+            $scope.availableStreams.splice(7, 0, {
+                name: 'DASH Industry Forum Test Vectors',
+                submenu: data.items
+            });
         });
     });
 
-    $scope.stream_click = function (item) {
-        console.log(item);
-        $scope.selectedItem.url = item['video_stream'];
-        $scope.selectedItem.title = item['stream_name'];
-        $scope.doLoad();
-    };
-
+    contributors.query(function (data) {
+        $scope.contributors = data.items;
+    });
 
     $scope.chartOptions = {
         legend: {
@@ -218,7 +197,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     $scope.loopSelected = true;
     $scope.scheduleWhilePausedSelected = true;
     $scope.localStorageSelected = true;
-    $scope.fastSwitchSelected = false;
+    $scope.fastSwitchSelected = true;
     $scope.ABRStrategy = 'abrDynamic';
 
     // Error management
