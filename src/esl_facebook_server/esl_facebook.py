@@ -29,10 +29,19 @@ def get_esl_event(sport='dota'):
     try:
         return {
             'event_id': esl_event_json['items'][0]['pidchannels'],
-            'event_title': esl_event_json['items'][0]['fulltitle'],
+            'event_name': esl_event_json['items'][0]['fulltitle'],
         }
     except LookupError:
         return
+
+
+def get_esl_events():
+    esl_events = {}
+    for sport in ESL_EVENTS_URL:
+        esl_event = get_esl_event(sport)
+        if esl_event:
+            esl_events[sport] = esl_event
+    return esl_events
 
 
 def get_facebook_stream_url(facebook_video_url):
