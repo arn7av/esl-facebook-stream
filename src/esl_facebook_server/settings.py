@@ -9,6 +9,8 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 # FACEBOOK_APP_ID = os.environ.get('FACEBOOK_APP_ID')
 # FACEBOOK_APP_SECRET = os.environ.get('FACEBOOK_APP_SECRET')
 
+DEFAULT_ESL_EVENT = 9510
+
 
 try:
     from local_settings import *

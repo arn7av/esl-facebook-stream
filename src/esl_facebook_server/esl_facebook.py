@@ -6,13 +6,33 @@ from datetime import datetime, timedelta
 
 import settings
 
-esl_url = 'http://api.esl.tv/v1/channel/eventchannels?pid={esl_event_id}&hideservice=web'
-# esl_url = 'http://cdn1.api.esl.tv/v1/channel/eventchannels?pid={esl_event_id}&hideservice=huomao'
+esl_url_origin = 'http://api.esl.tv/v1'
+# esl_url_origin = 'http://cdn1.api.esl.tv/v1'
+esl_event_url = esl_url_origin + '/event/bydomainurl?livedomain={esl_event_domain}&liveurl={esl_event_path}'
+esl_channel_url = esl_url_origin + '/channel/eventchannels?pid={esl_event_id}&hideservice=web'
 facebook_graph_page_url = 'https://graph.facebook.com/{facebook_id}?fields=link,username&access_token={facebook_app_id}|{facebook_app_secret}'
 facebook_stream_fetch_url = 'https://www.facebook.com/video/tahoe/async/{facebook_video_id}/?chain=true&isvideo=true&originalmediaid={facebook_video_id}&playerorigin=permalink&playersuborigin=tahoe&ispermalink=true&dpr=2'
 
 cached_stream_urls = {}
 cached_facebook_ids = {}
+
+ESL_EVENTS_URL = {
+    'dota': ('live.esl-one.com', '/'),
+}
+
+
+def get_esl_event(sport='dota'):
+    if sport not in ESL_EVENTS_URL:
+        return
+    esl_event_domain, esl_event_path = ESL_EVENTS_URL[sport]
+    esl_event_json = requests.get(esl_event_url.format(esl_event_domain=esl_event_domain, esl_event_path=esl_event_path)).json()
+    try:
+        return {
+            'event_id': esl_event_json['items'][0]['pidchannels'],
+            'event_title': esl_event_json['items'][0]['fulltitle'],
+        }
+    except LookupError:
+        return
 
 
 def get_facebook_stream_url(facebook_video_url):
@@ -49,9 +69,9 @@ def get_facebook_stream_url_new(facebook_video_url):
             return video_stream_probable_url
 
 
-def fetch_streams(esl_event_id=8712):
+def fetch_esl_event_streams(esl_event_id=settings.DEFAULT_ESL_EVENT):
     esl_facebook_streams = OrderedDict()
-    esl_event_json = requests.get(esl_url.format(esl_event_id=esl_event_id)).json()
+    esl_event_json = requests.get(esl_channel_url.format(esl_event_id=esl_event_id)).json()
     for stream in esl_event_json:
         if stream.get('service') == 'facebook':
             embed_regex = re.search(r'href=(.*?)&', stream.get('override_embedcode'))
@@ -110,4 +130,4 @@ def fetch_streams(esl_event_id=8712):
 
 
 if __name__ == "__main__":
-    raise SystemExit(fetch_streams())
+    raise SystemExit(fetch_esl_event_streams())
