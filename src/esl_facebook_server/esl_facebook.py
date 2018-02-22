@@ -17,11 +17,12 @@ cached_stream_urls = {}
 cached_facebook_ids = {}
 
 ESL_EVENTS_URL = {
-    'dota': ('live.esl-one.com', '/'),
+    'one': ('live.esl-one.com', '/'),
+    'proleague_csgo': ('live.proleague.com', '/csgo'),
 }
 
 
-def get_esl_event(sport='dota'):
+def get_esl_event(sport='eslone'):
     if sport not in ESL_EVENTS_URL:
         return
     esl_event_domain, esl_event_path = ESL_EVENTS_URL[sport]
