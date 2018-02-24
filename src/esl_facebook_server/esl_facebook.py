@@ -11,7 +11,7 @@ esl_url_root = 'http://api.esl.tv/v1'
 esl_event_url = esl_url_root + '/event/bydomainurl?livedomain={esl_event_domain}&liveurl={esl_event_path}'
 esl_channel_url = esl_url_root + '/channel/eventchannels?pid={esl_event_id}&hideservice=web'
 facebook_graph_page_url = 'https://graph.facebook.com/{facebook_id}?fields=link,username&access_token={facebook_app_id}|{facebook_app_secret}'
-facebook_stream_fetch_url = 'https://www.facebook.com/video/tahoe/async/{facebook_video_id}/?chain=true&isvideo=true&originalmediaid={facebook_video_id}&playerorigin=permalink&playersuborigin=tahoe&ispermalink=true&dpr=2'
+facebook_stream_fetch_url = 'https://www.facebook.com/video/tahoe/async/{facebook_video_id}/?chain=true&isvideo=true&originalmediaid={facebook_video_id}&playerorigin=permalink&playersuborigin=tahoe&ispermalink=true&dpr=1'
 
 cached_stream_urls = {}
 cached_facebook_ids = {}
@@ -76,6 +76,10 @@ def get_facebook_stream_url_new(facebook_video_url):
         video_stream_probable_url_escaped = video_stream_regex.group(1)
         video_stream_probable_url = re.sub(r'\\(.)', r'\1', video_stream_probable_url_escaped)
         if len(video_stream_probable_url) < 1024:
+            video_stream_probable_url = video_stream_probable_url.encode('utf-8').decode('utf-8')
+            # video_stream_probable_url += '&_nc_nc=1'
+            video_stream_probable_url += '&_nc_p_n=2&_nc_p_o=4&_nc_p_rid=live-md_H264&_nc_p_arid=live-md_AAC&_nc_nc=1'
+            video_stream_probable_url = re.sub('video(.*?).fbcdn.net', 'video.xx.fbcdn.net', video_stream_probable_url)
             return video_stream_probable_url
 
 
