@@ -16,16 +16,16 @@ facebook_stream_fetch_url = 'https://www.facebook.com/video/tahoe/async/{faceboo
 cached_stream_urls = {}
 cached_facebook_ids = {}
 
-ESL_EVENTS_URL = {
-    'one': ('live.esl-one.com', '/'),
-    'proleague_csgo': ('live.proleague.com', '/csgo'),
-}
+ESL_EVENTS_URL = OrderedDict([
+    ('one', ('live.esl-one.com', '/')),
+    ('proleague_csgo', ('live.proleague.com', '/csgo')),
+])
 
 
-def get_esl_event(sport='one'):
-    if sport not in ESL_EVENTS_URL:
+def get_esl_event(event_family='one'):
+    if event_family not in ESL_EVENTS_URL:
         return
-    esl_event_domain, esl_event_path = ESL_EVENTS_URL[sport]
+    esl_event_domain, esl_event_path = ESL_EVENTS_URL[event_family]
     esl_event_json = requests.get(esl_event_url.format(esl_event_domain=esl_event_domain, esl_event_path=esl_event_path)).json()
     try:
         return {
@@ -37,11 +37,12 @@ def get_esl_event(sport='one'):
 
 
 def get_esl_events():
-    esl_events = {}
-    for sport in ESL_EVENTS_URL:
-        esl_event = get_esl_event(sport)
+    esl_events = []
+    for event_family in ESL_EVENTS_URL:
+        esl_event = get_esl_event(event_family)
         if esl_event:
-            esl_events[sport] = esl_event
+            esl_event['event_family'] = event_family
+            esl_events.append(esl_event)
     return esl_events
 
 
@@ -77,10 +78,14 @@ def get_facebook_stream_url_new(facebook_video_url):
         video_stream_probable_url = re.sub(r'\\(.)', r'\1', video_stream_probable_url_escaped)
         if len(video_stream_probable_url) < 1024:
             video_stream_probable_url = video_stream_probable_url.encode('utf-8').decode('utf-8')
-            # video_stream_probable_url += '&_nc_nc=1'
-            video_stream_probable_url += '&_nc_p_n=2&_nc_p_o=4&_nc_p_rid=live-md_H264&_nc_p_arid=live-md_AAC&_nc_nc=1'
-            video_stream_probable_url = re.sub('video(.*?).fbcdn.net', 'video.xx.fbcdn.net', video_stream_probable_url)
             return video_stream_probable_url
+
+
+def facebook_stream_url_fixes(facebook_stream_url):
+    # facebook_stream_url += '&_nc_nc=1'
+    facebook_stream_url += '&_nc_p_n=2&_nc_p_o=4&_nc_p_rid=live-md_H264&_nc_p_arid=live-md_AAC&_nc_nc=1'
+    facebook_stream_url = re.sub('video(.*?).fbcdn.net', 'video.xx.fbcdn.net', facebook_stream_url)
+    return facebook_stream_url
 
 
 def fetch_esl_event_streams(esl_event_id=settings.DEFAULT_ESL_EVENT):
@@ -97,21 +102,21 @@ def fetch_esl_event_streams(esl_event_id=settings.DEFAULT_ESL_EVENT):
             }
             esl_facebook_streams[stream['uid']] = event_dict
 
-    for stream in esl_facebook_streams.values():
-        if stream['facebook_id'] and stream['video_id']:
-            if stream['facebook_id'] in cached_facebook_ids:
-                facebook_page_json = cached_facebook_ids[stream['facebook_id']]
-            else:
-                facebook_page_json = requests.get(facebook_graph_page_url.format(
-                    facebook_id=stream['facebook_id'],
-                    facebook_app_id=settings.FACEBOOK_APP_ID,
-                    facebook_app_secret=settings.FACEBOOK_APP_SECRET)
-                ).json()
-                cached_facebook_ids[stream['facebook_id']] = facebook_page_json
-            facebook_video_url_alt = '{facebook_page_url}videos/{facebook_video_id}/'.format(
-                facebook_page_url=facebook_page_json['link'], facebook_video_id=stream['video_id']
-            )
-            stream['video_url_alt'] = facebook_video_url_alt
+    # for stream in esl_facebook_streams.values():
+    #     if stream['facebook_id'] and stream['video_id']:
+    #         if stream['facebook_id'] in cached_facebook_ids:
+    #             facebook_page_json = cached_facebook_ids[stream['facebook_id']]
+    #         else:
+    #             facebook_page_json = requests.get(facebook_graph_page_url.format(
+    #                 facebook_id=stream['facebook_id'],
+    #                 facebook_app_id=settings.FACEBOOK_APP_ID,
+    #                 facebook_app_secret=settings.FACEBOOK_APP_SECRET)
+    #             ).json()
+    #             cached_facebook_ids[stream['facebook_id']] = facebook_page_json
+    #         facebook_video_url_alt = '{facebook_page_url}videos/{facebook_video_id}/'.format(
+    #             facebook_page_url=facebook_page_json['link'], facebook_video_id=stream['video_id']
+    #         )
+    #         stream['video_url_alt'] = facebook_video_url_alt
 
     final_esl_facebook_streams = []
 
@@ -119,15 +124,19 @@ def fetch_esl_event_streams(esl_event_id=settings.DEFAULT_ESL_EVENT):
         cached_video_stream_dict = cached_stream_urls.get(stream['video_url'])
         if settings.CACHE_STREAM_URLS and cached_video_stream_dict and datetime.utcnow() - cached_video_stream_dict['dt'] < timedelta(seconds=settings.CACHE_STREAM_URLS_TTL):
             stream['video_stream'] = cached_video_stream_dict['video_stream']
+            stream['video_stream_original'] = cached_video_stream_dict['video_stream_original']
             print('{} fetched from cache'.format(stream['video_url']))
         else:
-            video_stream = get_facebook_stream_url_new(stream['video_url'])
-            if not video_stream:
-                video_stream = get_facebook_stream_url(stream['video_url'])
-            if video_stream:
+            video_stream_original = get_facebook_stream_url_new(stream['video_url'])
+            if not video_stream_original:
+                video_stream_original = get_facebook_stream_url(stream['video_url'])
+            if video_stream_original:
+                video_stream = facebook_stream_url_fixes(video_stream_original)
                 stream['video_stream'] = video_stream
+                stream['video_stream_original'] = video_stream_original
                 cached_stream_urls[stream['video_url']] = {
                     'video_stream': video_stream,
+                    'video_stream_original': video_stream_original,
                     'dt': datetime.utcnow(),
                 }
 

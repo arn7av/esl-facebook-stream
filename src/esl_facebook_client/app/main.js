@@ -34,28 +34,45 @@ angular.module('DashIFTestVectorsService', ['ngResource']).factory('dashifTestVe
 });
 
 app.controller('DashController', function ($scope, sources, contributors, dashifTestVectors) {
-    $scope.events_promise = $.getJSON("events.json", function (json_data) {
-        $scope.$apply(function () {
-            $scope.availableStreams = json_data;
-        });
-    });
-
     $scope.stream_list = [];
 
-    $scope.event_click = function (item) {
-        console.log(item);
-        var get_streams_url = $scope.root_url + 'streams/' + item['event_id'];
-        return $.getJSON(get_streams_url, function (data) {
-            console.log(data);
+    $scope.event_list_promise = function () {
+        var get_events_url = $scope.root_url + '/events';
+        return $.getJSON(get_events_url, function (json_data) {
             $scope.$apply(function () {
-                $scope.stream_list = data;
+                $scope.availableStreams = json_data;
             });
         });
     };
 
+    $scope.stream_list_promise = function (item) {
+        var get_streams_url = $scope.root_url + '/streams/' + item['event_id'];
+        return $.getJSON(get_streams_url, function (json_data) {
+            $scope.$apply(function () {
+                $scope.stream_list = json_data;
+            });
+        });
+    };
+
+    $scope.event_click = function (item) {
+        console.log(item);
+        $scope.stream_list_promise(item).done(function () {
+            if ($scope.stream_list.length) {
+                $scope.stream_click($scope.stream_list[0]);
+            }
+        });
+    };
+
+    $scope.stream_click = function (item) {
+        console.log(item);
+        $scope.selectedItem.url = item['video_stream'];
+        $scope.selectedItem.title = item['stream_name'];
+        $scope.doLoad();
+    };
+
     $scope.on_page_load = function () {
-        $scope.events_promise.done(function () {
-            $scope.event_click($scope.availableStreams[0]).done(function () {
+        $scope.event_list_promise().done(function () {
+            $scope.stream_list_promise($scope.availableStreams[0]).done(function () {
                 if ($scope.stream_list.length) {
                     $scope.stream_click($scope.stream_list[0]);
                 } else {
@@ -75,13 +92,6 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
             $scope.on_page_load();
         });
     });
-
-    $scope.stream_click = function (item) {
-        console.log(item);
-        $scope.selectedItem.url = item['video_stream'];
-        $scope.selectedItem.title = item['stream_name'];
-        $scope.doLoad();
-    };
 
 
     $scope.chartOptions = {
