@@ -19,6 +19,7 @@ cached_facebook_ids = {}
 ESL_EVENTS_URL = OrderedDict([
     ('one', ('live.esl-one.com', '/')),
     ('proleague_csgo', ('live.proleague.com', '/csgo')),
+    ('iem', ('live.intelextrememasters.com', '/')),
 ])
 
 
@@ -93,7 +94,10 @@ def fetch_esl_event_streams(esl_event_id=settings.DEFAULT_ESL_EVENT):
     esl_event_json = requests.get(esl_channel_url.format(esl_event_id=esl_event_id)).json()
     for stream in esl_event_json:
         if stream.get('service') == 'facebook':
-            embed_regex = re.search(r'href=(.*?)&', stream.get('override_embedcode'))
+            embed_url = stream.get('override_embedcode')
+            if not embed_url:
+                continue
+            embed_regex = re.search(r'href=(.*?)&', embed_url)
             event_dict = {
                 'facebook_id': stream.get('account').split('-')[0],
                 'video_id': stream.get('youtube_video_id'),
