@@ -81,7 +81,8 @@
                     </button>
                 </div>
 
-                <div id="desktop-streams-2" class="input-group-btn" ng-if="stream_list.length">
+                <!--<div id="desktop-streams-2" class="input-group-btn" ng-if="stream_list.length">-->
+                <div id="desktop-streams-2" class="input-group-btn">
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                         Stream <span class="caret"></span>
                     </button>
@@ -207,7 +208,7 @@
         </div>
 
         <!--VIDEO PLAYER / CONTROLS -->
-        <div class="row">
+        <div class="row flex-container-row">
             <div class="dash-video-player col-md-9">
                 <div id="videoContainer" class="videoContainer">
                     <video></video>
@@ -248,23 +249,32 @@
             </div>
 
             <!-- STATS TAB CONTENT -->
-            <div class="col-md-3 tabs-section">
-                <div >
+            <div class="col-md-3 tabs-section flex-container-column">
+                <div class="flex-item-grow flex-container-column">
                     <ul class="nav nav-tabs" role="tablist">
                       <li class="active">
+                          <a href="#twitchChatTab" role="tab" data-toggle="tab">
+                              Twitch Chat
+                          </a>
+                      </li>
+                      <li>
                           <a href="#videoStatsTab" role="tab" data-toggle="tab">
                               Video
                           </a>
                       </li>
-                      <li><a href="#audioStatsTab" role="tab" data-toggle="tab">
-                          Audio
+                      <li>
+                          <a href="#audioStatsTab" role="tab" data-toggle="tab">
+                              Audio
                           </a>
                       </li>
                     </ul>
 
                     <!-- Tab panes -->
-                    <div class="tab-content">
-                      <div class="tab-pane fade active in" id="videoStatsTab">
+                    <div class="tab-content flex-item-grow">
+                      <div class="tab-pane fade active in full-height" id="twitchChatTab">
+                        <iframe id="twitchChatIframeEmbed" frameborder="0" scrolling="no" height="100%" width="100%" src="http://www.twitch.tv/embed/arn7av/chat"></iframe>
+                      </div>
+                      <div class="tab-pane fade" id="videoStatsTab">
                         <div class="panel-body panel-stats" ng-cloak>
                             <!-- VIDEO STATS ITEMS-->
                             <div class="text-success">

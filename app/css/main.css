@@ -519,3 +519,25 @@ CONTROL BAR CSS NEEDS TO MOVE INTO THE CONTROL BAR
     font-size: .9em !important;
     padding: 0px;
 }
+
+.flex-container-row {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+}
+
+.flex-container-column {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+}
+
+.flex-item-grow {
+    flex: 1;
+}
+
+.full-height {
+    height: 100%;
+}
