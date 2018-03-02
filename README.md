@@ -1,5 +1,5 @@
 # esl-facebook-stream
-> ESL Facebook Stream client sans the fuss. Live at [esl.atx.sx](https://esl.atx.sx)
+> ESL Facebook stream client sans the fuss. Live at [esl.atx.sx](https://esl.atx.sx)
 
 
 ## Meta
