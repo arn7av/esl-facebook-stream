@@ -11,22 +11,12 @@ CORS(app)
 
 
 class EslFacebookStream(Resource):
-    def __init__(self):
-        self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('esl_event_id')
-        super(EslFacebookStream, self).__init__()
-
     def get(self, esl_event_id):
         streams = fetch_esl_event_streams(esl_event_id)
         return streams
 
 
 class EslEvent(Resource):
-    def __init__(self):
-        self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('esl_sport')
-        super(EslEvent, self).__init__()
-
     def get(self, esl_sport):
         event = get_esl_event(esl_sport)
         if not event:
@@ -45,8 +35,8 @@ class Root(Resource):
 
 
 api.add_resource(Root, '/')
-api.add_resource(EslFacebookStream, '/streams/<esl_event_id>')
-api.add_resource(EslEvent, '/events/<esl_sport>')
+api.add_resource(EslFacebookStream, '/streams/<int:esl_event_id>')
+api.add_resource(EslEvent, '/events/<string:esl_sport>')
 api.add_resource(EslEventList, '/events')
 
 if __name__ == '__main__':
