@@ -1,13 +1,13 @@
 from flask import Flask
-from flask_restful import reqparse, abort, Api, Resource
 from flask_cors import CORS
+from flask_restful import abort, Api, Resource
 
 import settings
 from esl_facebook import fetch_esl_event_streams, get_esl_event, get_esl_events
 
 app = Flask(__name__)
 api = Api(app)
-CORS(app)
+CORS(app, origins='https:\/\/(.+\.)?atx\.sx')
 
 
 class EslFacebookStream(Resource):
