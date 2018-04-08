@@ -57,6 +57,9 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
         thumbnailTimeLabel,
         idSuffix,
 
+        bitrateMenuActive = false,
+        bitrateMenuCreatePending = false;
+
 //************************************************************************************
 // THUMBNAIL CONSTANTS
 //************************************************************************************
@@ -426,12 +429,9 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
             }
         },
 
-        onStreamInitialized = function (e) {
-
-            updateDuration();
-
+        createBitrateMenu = function () {
             var contentFunc;
-            //Bitrate Menu
+
             if (bitrateListBtn) {
                 destroyBitrateMenu();
 
@@ -441,11 +441,17 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
 
                 if (availableBitrates.audio.length > 1 || availableBitrates.video.length > 1) {
                     contentFunc = function (element, index) {
-                        return isNaN(index) ? " Auto Switch" : Math.floor(element.bitrate / 1000) + " kbps";
-                    }
+                        if (isNaN(index)) {
+                            return " Auto Switch";
+                        } else if (element.mediaType === "video") {
+                            return Math.floor(element.bitrate / 1000) + " kbps (" + element.width + "x" + element.height + ")";
+                        } else {
+                            return Math.floor(element.bitrate / 1000) + " kbps";
+                        }
+                    };
                     bitrateListMenu = createMenu(availableBitrates, contentFunc);
                     var func = function () {
-                        onMenuClick(bitrateListMenu, bitrateListBtn);
+                        onBitrateMenuClick(bitrateListMenu, bitrateListBtn);
                     };
                     menuHandlersList.push(func);
                     bitrateListBtn.addEventListener("click", func);
@@ -454,6 +460,21 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
                 } else {
                     bitrateListBtn.classList.add("hide");
                 }
+            }
+
+            bitrateMenuCreatePending = false;
+        },
+
+        onStreamInitialized = function (e) {
+
+            updateDuration();
+
+            var contentFunc;
+            //Bitrate Menu
+            if (bitrateMenuActive) {
+                bitrateMenuCreatePending = true;
+            } else {
+                createBitrateMenu();
             }
 
             //Track Switch Menu
@@ -533,7 +554,7 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
                 return idx;
 
             } else if (menuType === "bitrate") {
-                return player.getAutoSwitchQualityFor(mediaType) ? 0 : player.getQualityFor(mediaType);
+                return player.getAutoSwitchQualityFor(mediaType) ? 0 : player.getQualityFor(mediaType) + 1;
             } else if (menuType === "caption") {
                 var idx = player.getCurrentTextTrackIndex() + 1;
 
@@ -635,6 +656,32 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
         },
 
 
+        onBitrateMenuDeactivate = function () {
+            bitrateMenuActive = false;
+            if (bitrateMenuCreatePending) {
+                createBitrateMenu();
+            }
+        },
+
+
+        onBitrateMenuClick = function (menu, btn) {
+
+            if (menu.classList.contains("hide")) {
+                bitrateMenuActive = true;
+                menu.classList.remove("hide");
+                menu.onmouseleave = function (e) {
+                    onBitrateMenuDeactivate();
+                    this.classList.add("hide");
+                };
+            } else {
+                onBitrateMenuDeactivate();
+                menu.classList.add("hide");
+            }
+            menu.style.position = isFullscreen() ? "fixed" : "absolute";
+            positionMenu(menu, btn);
+        },
+
+
         setMenuItemsState = function (value, type) {
 
             var self = typeof value === 'number' ? document.getElementById(type + "Item_" + value) : this,
@@ -688,9 +735,10 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
         },
 
         positionMenu = function (menu, btn) {
+            // menu.style.left should be set first so that menu.offsetHeight adjusts accordingly and then used in further calculations
+            menu.style.left = btn.offsetLeft + "px";
             var menu_y = videoController.offsetTop - menu.offsetHeight;
             menu.style.top = menu_y + "px";
-            menu.style.left = btn.offsetLeft + "px";
         },
 
         destroyBitrateMenu = function () {
