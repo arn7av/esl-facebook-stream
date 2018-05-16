@@ -182,6 +182,7 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     $scope.videotoggle = false;
     $scope.audiotoggle = false;
     $scope.optionsGutter = false;
+    $scope.darkModeEnabled = false;
     $scope.drmData = [];
     $scope.initialSettings = {
         audio: null,
@@ -425,6 +426,25 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
         $scope.player.setTextDefaultEnabled($scope.initialSettings.textEnabled);
         $scope.controlbar.enable();
     };
+
+    $scope.toggleDarkMode = function (bool) {
+        if($scope.darkModeEnabled) {
+            document.body.style.backgroundColor = "#EEE";
+            document.querySelector(".chart-panel").style.backgroundColor = "#FFF";
+            document.querySelector(".form-control").style.backgroundColor = "#FFF";
+            document.querySelector(".flot-overlay").style.backgroundColor = "#FFF";
+            document.querySelector(".branding").style.color = "#333";
+            document.getElementById("twitchChatIframeEmbed").src="http://www.twitch.tv/embed/arn7av/chat";
+        } else {
+            document.body.style.backgroundColor = "#222";
+            document.querySelector(".chart-panel").style.backgroundColor = "#222";
+            document.querySelector(".form-control").style.backgroundColor = "#222";
+            document.querySelector(".flot-overlay").style.backgroundColor = "#222";
+            document.querySelector(".branding").style.color = "#AAA";
+            document.getElementById("twitchChatIframeEmbed").src="http://www.twitch.tv/embed/arn7av/chat?darkpopout";
+        }
+        $scope.darkModeEnabled = bool;
+    }
 
     $scope.changeTrackSwitchMode = function (mode, type) {
         $scope.player.setTrackSwitchModeFor(type, mode);
