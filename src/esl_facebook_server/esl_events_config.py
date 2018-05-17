@@ -6,7 +6,7 @@ ESL_EVENT_FAMILY_DICT = OrderedDict([
         {
             'event_domain': 'live.esl-one.com',
             'event_path': '/',
-            'event_id_list': [9510],
+            'event_id_list': [11093],
             'event_facebook_list': ['WatchESLOne'],
             'weight': 1,
         }
@@ -26,7 +26,7 @@ ESL_EVENT_FAMILY_DICT = OrderedDict([
         {
             'event_domain': 'live.intelextrememasters.com',
             'event_path': '/',
-            'event_id_list': [8817],
+            'event_id_list': [11062],
             'event_facebook_list': ['WatchIEM'],
             'weight': 3,
         }

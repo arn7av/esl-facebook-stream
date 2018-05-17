@@ -14,7 +14,9 @@ itsdangerous==0.24
 Jinja2==2.10
 MarkupSafe==1.0
 pytz==2017.3
+redis==2.10.6
 requests==2.18.4
 six==1.11.0
 urllib3==1.22
+walrus==0.5.1
 Werkzeug==0.14.1

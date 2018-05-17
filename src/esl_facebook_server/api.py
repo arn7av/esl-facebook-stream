@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_restful import abort, Api, Resource
 
@@ -13,7 +13,7 @@ CORS(app, origins='https:\/\/(.+\.)?atx\.sx')
 class EslFacebookStream(Resource):
     def get(self, esl_event_id):
         streams = fetch_esl_event_streams(esl_event_id)
-        return streams
+        return jsonify(streams)
 
 
 class EslEvent(Resource):
@@ -21,12 +21,12 @@ class EslEvent(Resource):
         event = get_esl_event(esl_sport)
         if not event:
             abort(404, message='invalid sport')
-        return event
+        return jsonify(event)
 
 
 class EslEventList(Resource):
     def get(self):
-        return get_esl_events()
+        return jsonify(get_esl_events())
 
 
 class Root(Resource):

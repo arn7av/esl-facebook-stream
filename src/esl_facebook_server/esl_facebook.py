@@ -1,13 +1,15 @@
 import operator
+import pickle
 import re
 import urllib.parse
 from collections import OrderedDict
-from datetime import datetime, timedelta
 
 import requests
+from walrus import Database
 
 import settings
 from esl_events_config import ESL_EVENT_FAMILY_DICT
+from cache import RefreshCache
 
 esl_url_root = 'http://api.esl.tv/v1'
 # esl_url_root = 'http://cdn1.api.esl.tv/v1'
@@ -17,37 +19,65 @@ esl_channel_url = esl_url_root + '/channel/eventchannels?pid={esl_event_id}&hide
 facebook_graph_page_url = facebook_graph_url_root + '/{facebook_id}?fields=link,username&access_token={facebook_app_id}|{facebook_app_secret}'
 facebook_graph_page_live_videos_url = facebook_graph_url_root + '/{facebook_page_username}/live_videos?access_token={facebook_access_token}'
 facebook_stream_fetch_url = 'https://www.facebook.com/video/tahoe/async/{facebook_video_id}/?chain=true&isvideo=true&originalmediaid={facebook_video_id}&playerorigin=permalink&playersuborigin=tahoe&ispermalink=true&numcopyrightmatchedvideoplayedconsecutively=0&dpr=1'  # dpr = device pixel ratio
+facebook_video_embed_url = 'https://www.facebook.com/embedvideo/video.php'
 
-cached_stream_urls = {}
+db = Database(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
+cache = RefreshCache(db, name='cache', default_timeout=3600)
 
-ESL_EVENT_FAMILY_DICT[settings.DEFAULT_EVENT_FAMILY]['weight'] = 0
+esl_event_family_dict = ESL_EVENT_FAMILY_DICT
 
 
-def get_esl_event(event_family=settings.DEFAULT_EVENT_FAMILY):
-    esl_event_dict = ESL_EVENT_FAMILY_DICT.get(event_family)
-    if not esl_event_dict:
-        return
+def set_esl_event_family_dict():
+    db['esl_event_family_dict'] = pickle.dumps(esl_event_family_dict, pickle.HIGHEST_PROTOCOL)
+
+
+def get_esl_event_family_dict():
+    global esl_event_family_dict
+    esl_event_family_dict = pickle.loads(db['esl_event_family_dict'])
+    return esl_event_family_dict
+
+
+esl_event_family_dict[settings.DEFAULT_EVENT_FAMILY]['weight'] = 0
+set_esl_event_family_dict()
+
+
+@cache.conditional_cached(timeout=settings.CACHE_ESL_EVENT_TTL, refresh=settings.CACHE_ESL_EVENT_REFRESH)
+def get_esl_event_core(event_family):
+    esl_event_dict = esl_event_family_dict[event_family]
     esl_event_domain, esl_event_path = esl_event_dict['event_domain'], esl_event_dict['event_path']
-    esl_event_json = requests.get(esl_event_url.format(
-        esl_event_domain=esl_event_domain, esl_event_path=esl_event_path
-    )).json()
+    try:
+        esl_event_json = requests.get(esl_event_url.format(
+            esl_event_domain=esl_event_domain, esl_event_path=esl_event_path
+        ), timeout=settings.REQUEST_ESL_TIMEOUT).json()
+    except requests.exceptions.RequestException:
+        return None, False
     try:
         event_id = esl_event_json['items'][0]['pidchannels']
         event_name = esl_event_json['items'][0]['fulltitle']
         if event_id not in esl_event_dict['event_id_list']:
             esl_event_dict['event_id_list'].append(event_id)
+            set_esl_event_family_dict()
         return {
             'event_id': event_id,
             'event_name': event_name,
-            'weight': esl_event_dict['weight'],
-        }
+        }, True
     except LookupError:
+        return None, False
+
+
+def get_esl_event(event_family=settings.DEFAULT_EVENT_FAMILY):
+    esl_event_dict = get_esl_event_family_dict().get(event_family)
+    if not esl_event_dict:
         return
+    event_ret = get_esl_event_core(event_family)
+    if event_ret:
+        event_ret['weight'] = esl_event_dict['weight']
+    return event_ret
 
 
 def get_esl_events():
     esl_events = []
-    for event_family in ESL_EVENT_FAMILY_DICT:
+    for event_family in get_esl_event_family_dict():
         esl_event = get_esl_event(event_family)
         if esl_event:
             esl_event['event_family'] = event_family
@@ -56,19 +86,33 @@ def get_esl_events():
     return esl_events
 
 
-def get_facebook_stream_url(facebook_video_url):
-    headers = {
-        'User-Agent': settings.USER_AGENT,
-    }
-    video_page_text = requests.get(facebook_video_url, headers=headers).text
-    video_stream_regex = re.search(r'hd_src:"(.*?)"', video_page_text)
+@cache.conditional_cached(timeout=settings.CACHE_FACEBOOK_TTL, refresh=settings.CACHE_FACEBOOK_REFRESH)
+def get_facebook_stream_url_core(facebook_video_url):
+    video_stream_original = get_facebook_stream_url_tahoe(facebook_video_url)
+    if not video_stream_original:
+        video_stream_original = get_facebook_stream_url_embed(facebook_video_url)
+    if not video_stream_original:
+        return None, False
+    video_stream = facebook_stream_url_fixes(video_stream_original)
+    return {
+        'video_stream': video_stream,
+        'video_stream_original': video_stream_original,
+    }, True
+
+
+def extract_facebook_stream_url_from_text(video_page_text):
+    video_stream_regex = re.search(r'hd_src":"(.*?)"', video_page_text)
     if video_stream_regex:
-        video_stream_probable_url = video_stream_regex.group(1)
+        video_stream_probable_url_escaped = video_stream_regex.group(1)
+        video_stream_probable_url = re.sub(r'\\/', r'/', video_stream_probable_url_escaped)
+        video_stream_probable_url = video_stream_probable_url.encode('ascii').decode('unicode_escape')
+        # video_stream_probable_url_escaped  = 'https:\\/\\/video.fhyd2-1.fna.fbcdn.net\\/hvideo-prn1\\/v\\/r-lPyUEfSbxTx9vSfr8wx\\/live-dash\\/dash-abr4\\/2004039446294233.mpd?_nc_rl=AfBNK1QRpcjuyWTi&efg=eyJxZV9ncm91cHMiOnsibGl2ZV9jYWNoZV9wcmltaW5nX3VuaXZlcnNlIjp7ImVuYWJsZWQiOiIxIiwiZm5hX2VuYWJsZWQiOiIwIn19fQ\\u00253D\\u00253D&oh=29cbb9ad717cd5b904fed979dc1c8ab0&oe=5AC9F055'
+        # video_stream_probable_url = 'https://video.fhyd2-1.fna.fbcdn.net/hvideo-prn1/v/r-lPyUEfSbxTx9vSfr8wx/live-dash/dash-abr4/2004039446294233.mpd?_nc_rl=AfBNK1QRpcjuyWTi&efg=eyJxZV9ncm91cHMiOnsibGl2ZV9jYWNoZV9wcmltaW5nX3VuaXZlcnNlIjp7ImVuYWJsZWQiOiIxIiwiZm5hX2VuYWJsZWQiOiIwIn19fQ%3D%3D&oh=29cbb9ad717cd5b904fed979dc1c8ab0&oe=5AC9F055'
         if len(video_stream_probable_url) < 1024:
             return video_stream_probable_url
 
 
-def get_facebook_stream_url_new(facebook_video_url):
+def get_facebook_stream_url_tahoe(facebook_video_url):
     headers = {
         'User-Agent': settings.USER_AGENT,
     }
@@ -81,16 +125,19 @@ def get_facebook_stream_url_new(facebook_video_url):
     }
     facebook_video_id = re.search(r'videos/(\d+?)/', facebook_video_url).group(1)
     facebook_stream_fetch_url_final = facebook_stream_fetch_url.format(facebook_video_id=facebook_video_id)
-    video_page_text = requests.post(facebook_stream_fetch_url_final, data=payload, headers=headers).text
-    video_stream_regex = re.search(r'hd_src":"(.*?)"', video_page_text)
-    if video_stream_regex:
-        video_stream_probable_url_escaped = video_stream_regex.group(1)
-        video_stream_probable_url = re.sub(r'\\/', r'/', video_stream_probable_url_escaped)
-        video_stream_probable_url = video_stream_probable_url.encode('ascii').decode('unicode_escape')
-        # video_stream_probable_url_escaped  = 'https:\\/\\/video.fhyd2-1.fna.fbcdn.net\\/hvideo-prn1\\/v\\/r-lPyUEfSbxTx9vSfr8wx\\/live-dash\\/dash-abr4\\/2004039446294233.mpd?_nc_rl=AfBNK1QRpcjuyWTi&efg=eyJxZV9ncm91cHMiOnsibGl2ZV9jYWNoZV9wcmltaW5nX3VuaXZlcnNlIjp7ImVuYWJsZWQiOiIxIiwiZm5hX2VuYWJsZWQiOiIwIn19fQ\\u00253D\\u00253D&oh=29cbb9ad717cd5b904fed979dc1c8ab0&oe=5AC9F055'
-        # video_stream_probable_url = 'https://video.fhyd2-1.fna.fbcdn.net/hvideo-prn1/v/r-lPyUEfSbxTx9vSfr8wx/live-dash/dash-abr4/2004039446294233.mpd?_nc_rl=AfBNK1QRpcjuyWTi&efg=eyJxZV9ncm91cHMiOnsibGl2ZV9jYWNoZV9wcmltaW5nX3VuaXZlcnNlIjp7ImVuYWJsZWQiOiIxIiwiZm5hX2VuYWJsZWQiOiIwIn19fQ%3D%3D&oh=29cbb9ad717cd5b904fed979dc1c8ab0&oe=5AC9F055'
-        if len(video_stream_probable_url) < 1024:
-            return video_stream_probable_url
+    video_page_text = requests.post(facebook_stream_fetch_url_final, data=payload, headers=headers, timeout=settings.REQUEST_FACEBOOK_TIMEOUT).text
+    return extract_facebook_stream_url_from_text(video_page_text)
+
+
+def get_facebook_stream_url_embed(facebook_video_url):
+    headers = {
+        'User-Agent': settings.USER_AGENT,
+    }
+    payload = {
+        'href': facebook_video_url
+    }
+    video_page_text = requests.get(facebook_video_embed_url, params=payload, headers=headers, timeout=settings.REQUEST_FACEBOOK_TIMEOUT).text
+    return extract_facebook_stream_url_from_text(video_page_text)
 
 
 def facebook_stream_url_fixes(facebook_stream_url):
@@ -107,83 +154,104 @@ def get_video_url_from_embed_html(embed_html):
     return video_url, video_id
 
 
-def fetch_esl_event_streams(esl_event_id):
-    esl_facebook_streams = OrderedDict()
+@cache.conditional_cached(timeout=settings.CACHE_ESL_STREAM_TTL, refresh=settings.CACHE_ESL_STREAM_REFRESH)
+def get_esl_event_facebook_videos(esl_event_id):
+    esl_facebook_videos = OrderedDict()
 
-    esl_event = None
-    for event_family, esl_event_dict in ESL_EVENT_FAMILY_DICT.items():
-        if esl_event_id in esl_event_dict['event_id_list']:
-            esl_event = esl_event_dict
-            break
+    try:
+        esl_event_live_videos_json = requests.get(esl_channel_url.format(esl_event_id=esl_event_id), timeout=settings.REQUEST_ESL_TIMEOUT).json()
+    except requests.exceptions.RequestException:
+        return None, False
 
-    esl_event_json = requests.get(esl_channel_url.format(esl_event_id=esl_event_id)).json()
-    for stream in esl_event_json:
-        if stream.get('service') == 'facebook':
-            embed_html = stream.get('override_embedcode')
+    for live_video in esl_event_live_videos_json:
+        if live_video.get('service') == 'facebook':
+            embed_html = live_video.get('override_embedcode')
             if not embed_html:
                 continue
             video_url, video_id = get_video_url_from_embed_html(embed_html)
             if not video_id:
                 continue
-            event_dict = {
-                # 'facebook_id': stream.get('account').split('-')[0],
-                # 'video_id_alt': stream.get('youtube_video_id'),
-                'esl_video_id': stream['uid'],
+            video_dict = {
                 'video_id': video_id,
                 'video_url': video_url,
-                'stream_name': stream.get('name'),
+                'stream_name': live_video.get('name'),
+                'esl_video_id': live_video['uid'],
             }
-            esl_facebook_streams[video_id] = event_dict
+            esl_facebook_videos[video_id] = video_dict
+
+    if not len(esl_facebook_videos):
+        return None, False
+
+    return {
+        'esl_facebook_videos': esl_facebook_videos
+    }, True
+
+
+facebook_api_rate_limit = db.rate_limit('facebook_api_rate_limit', limit=1, per=settings.CACHE_FACEBOOK_API_RATE_LIMIT)
+
+
+@cache.conditional_cached(timeout=settings.CACHE_FACEBOOK_API_TTL, rate_limit=facebook_api_rate_limit)
+def get_facebook_page_facebook_videos(facebook_page_username):
+    esl_facebook_videos = OrderedDict()
+
+    try:
+        facebook_page_live_videos_json = requests.get(facebook_graph_page_live_videos_url.format(
+            facebook_page_username=facebook_page_username, facebook_access_token=settings.FACEBOOK_ACCESS_TOKEN
+        ), timeout=settings.REQUEST_FACEBOOK_TIMEOUT).json()
+    except requests.exceptions.RequestException:
+        return None, False
+
+    for live_video in facebook_page_live_videos_json.get('data', []):
+        if live_video.get('status', '') == 'LIVE':
+            video_url, video_id = get_video_url_from_embed_html(live_video['embed_html'])
+            if not video_id:
+                continue
+            video_dict = {
+                'video_id': video_id,
+                'video_url': 'https://www.facebook.com/{facebook_page_username}/videos/{facebook_video_id}/'.format(
+                    facebook_page_username=facebook_page_username, facebook_video_id=video_id
+                ),
+                'stream_name': live_video.get('title', '{} Live'.format(facebook_page_username)),
+            }
+            esl_facebook_videos[video_id] = video_dict
+
+    if not len(esl_facebook_videos):
+        return None, False
+
+    return {
+        'esl_facebook_videos': esl_facebook_videos
+    }, True
+
+
+def fetch_esl_event_streams(esl_event_id):
+    esl_event = None
+    for event_family, esl_event_dict in get_esl_event_family_dict().items():
+        if esl_event_id in esl_event_dict['event_id_list']:
+            esl_event = esl_event_dict
+            break
+
+    esl_facebook_streams = get_esl_event_facebook_videos(esl_event_id)['esl_facebook_videos'] if get_esl_event_facebook_videos(esl_event_id) else OrderedDict()
 
     if esl_event:
         event_facebook_list = esl_event.get('event_facebook_list', [])
         for event_facebook in event_facebook_list:
-            facebook_page_live_videos_json = requests.get(facebook_graph_page_live_videos_url.format(
-                facebook_page_username=event_facebook, facebook_access_token=settings.FACEBOOK_ACCESS_TOKEN
-            )).json()
-            for live_video in facebook_page_live_videos_json.get('data', []):
-                if live_video.get('status', '') == 'LIVE':
-                    video_url, video_id = get_video_url_from_embed_html(live_video['embed_html'])
-                    if not video_id:
-                        continue
-                    if video_id not in esl_facebook_streams:
-                        event_dict = {
-                            'video_id': video_id,
-                            'video_url': 'https://www.facebook.com/{facebook_page_username}/videos/{facebook_video_id}/'.format(
-                                facebook_page_username=event_facebook, facebook_video_id=video_id
-                            ),
-                            'stream_name': live_video.get('title', '{} Live'.format(event_facebook)),
-                        }
-                        esl_facebook_streams[video_id] = event_dict
+            esl_facebook_page_videos = get_facebook_page_facebook_videos(event_facebook)['esl_facebook_videos'] if get_facebook_page_facebook_videos(event_facebook) else OrderedDict()
+            for video_id, video_dict in reversed(esl_facebook_page_videos.items()):
+                if video_id not in esl_facebook_streams:
+                    esl_facebook_streams[video_id] = video_dict
 
     final_esl_facebook_streams = []
 
-    for stream_id, stream in esl_facebook_streams.items():
-        cached_video_stream_dict = cached_stream_urls.get(stream['video_url'])
-        if settings.CACHE_STREAM_URLS and cached_video_stream_dict \
-                and datetime.utcnow() - cached_video_stream_dict['dt'] < timedelta(seconds=settings.CACHE_STREAM_URLS_TTL):
-            stream['video_stream'] = cached_video_stream_dict['video_stream']
-            stream['video_stream_original'] = cached_video_stream_dict['video_stream_original']
-            print('{} fetched from cache'.format(stream['video_url']))
-        else:
-            video_stream_original = get_facebook_stream_url_new(stream['video_url'])
-            # if not video_stream_original:
-            #     video_stream_original = get_facebook_stream_url(stream['video_url'])
-            if video_stream_original:
-                video_stream = facebook_stream_url_fixes(video_stream_original)
-                stream['video_stream'] = video_stream
-                stream['video_stream_original'] = video_stream_original
-                cached_stream_urls[stream['video_url']] = {
-                    'video_stream': video_stream,
-                    'video_stream_original': video_stream_original,
-                    'dt': datetime.utcnow(),
-                }
+    for video_id, video_dict in esl_facebook_streams.items():
+        stream_dict = get_facebook_stream_url_core(video_dict['video_url'])
+        if stream_dict:
+            video_dict.update(stream_dict)
 
-        if 'video_stream' in stream:
-            if stream['video_stream'] in [e['video_stream'] for e in final_esl_facebook_streams]:
+        if 'video_stream' in video_dict:
+            if video_dict['video_stream'] in [e['video_stream'] for e in final_esl_facebook_streams]:
                 continue
             final_stream_dict = {}
-            final_stream_dict.update(stream)
+            final_stream_dict.update(video_dict)
             final_esl_facebook_streams.append(final_stream_dict)
 
     print(esl_facebook_streams)
