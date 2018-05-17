@@ -175,7 +175,7 @@ a:hover {
 *****************************/
 
 .text-success {
-    color:black !important;
+    /*color:black !important;*/
     font-size: 1.05em ;
     white-space: nowrap;
     overflow: hidden

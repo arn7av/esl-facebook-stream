@@ -33,7 +33,7 @@
     <script src="app/rules/ThroughputRule.js"></script>
 
 </head>
-<body ng-controller="DashController" >
+<body ng-controller="DashController" ng-style="darkMode ? darkCanvas : {}">
 
     <!-- Mobile Stream Menu-->
     <div class="modal fade" id="streamModal">
@@ -53,7 +53,7 @@
     <div class="container">
         <div class="row title-header">
 
-            <div class="branding">
+            <div class="branding" ng-style="darkMode ? darkText : {}">
               <span id="big-title">ESL Facebook</span>
               <span id="commit-info">Playing {{selectedItem.title}}</span>
             </div>
@@ -270,9 +270,9 @@
                     </ul>
 
                     <!-- Tab panes -->
-                    <div class="tab-content flex-item-grow">
+                    <div class="tab-content flex-item-grow" ng-style="darkMode ? darkComponent : {}">
                       <div class="tab-pane fade active in full-height" id="twitchChatTab">
-                        <iframe id="twitchChatIframeEmbed" frameborder="0" scrolling="no" height="100%" width="100%" src="http://www.twitch.tv/embed/arn7av/chat"></iframe>
+                        <iframe id="twitchChatIframeEmbed" frameborder="0" scrolling="no" height="100%" width="100%" ng-src="{{ twitchEmbedUrl }}"></iframe>
                       </div>
                       <div class="tab-pane fade" id="videoStatsTab">
                         <div class="panel-body panel-stats" ng-cloak>
@@ -388,8 +388,16 @@
             </div>
       </div>
 
+        <!-- Additions -->
+        <div class="additions-panel">
+            <div class="btn-group">
+                <button id="toggle-dark-mode" class="btn btn-primary" ng-click="toggleDarkMode()" ng-cloak>Toggle Dark Mode</button>
+                <button id="toggle-show-chart" class="btn btn-primary" ng-click="toggleShowChart()" ng-cloak>Toggle Show Chart</button>
+            </div>
+        </div>
+
         <!-- CHARTING -->
-       <div class="chart-panel">
+       <div class="chart-panel" ng-if="showChart">
             <div class="chart-controls">
                 <div class="btn-group">
                     <button id="disable-chart-btn" class="btn btn-primary" ng-click="clearChartData()" ng-cloak>Clear</button>
@@ -408,15 +416,11 @@
     </div>
 
     <!-- FOOTER -->
-    <div class="footer-area" ng-cloak>
+    <div class="footer-area" ng-cloak ng-style="darkMode ? darkComponent : {}">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <!--<h3 class="footer-text">Contributors:</h3>-->
-                    <!--<a ng-repeat="item in contributors" class="footer-text" href="{{item.link}}" target="_blank">-->
-                        <!--<img ng-show="hasLogo(item)" ng-src="{{item.logo}}" alt="{{item.link}}"/>-->
-                        <!--<span class="contributor" ng-show="!hasLogo(item)">{{item.name}}</span>-->
-                    <!--</a>-->
+                    <!--<h3 class="footer-text">~atx</h3>-->
                 </div>
             </div>
         </div>
