@@ -241,7 +241,7 @@ app.controller('DashController', function ($scope, $sce) {
     $scope.twitchUsername = 'arn7av';
     $scope.twitchEmbedUrl = '';
     $scope.onTwitchChange = function () {
-        $scope.twitchEmbedUrl = 'http://www.twitch.tv/embed/' + $scope.twitchUsername + '/chat' + ($scope.darkMode ? '?darkpopout' : '');
+        $scope.twitchEmbedUrl = 'https://www.twitch.tv/embed/' + $scope.twitchUsername + '/chat' + ($scope.darkMode ? '?darkpopout' : '');
         $scope.twitchEmbedUrl = $sce.trustAsResourceUrl($scope.twitchEmbedUrl);
     };
     $scope.onTwitchChange();
