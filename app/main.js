@@ -33,7 +33,7 @@ angular.module('DashIFTestVectorsService', ['ngResource']).factory('dashifTestVe
     });
 });
 
-app.controller('DashController', function ($scope, sources, contributors, dashifTestVectors) {
+app.controller('DashController', function ($scope, $sce) {
     $scope.stream_list = [];
 
     $scope.event_list_promise = function () {
@@ -234,6 +234,35 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     // Error management
     $scope.error = '';
     $scope.errorType = '';
+
+    // Additions
+    $scope.darkMode = false;
+    $scope.showChart = false;
+    $scope.twitchUsername = 'arn7av';
+    $scope.twitchEmbedUrl = '';
+    $scope.onTwitchChange = function () {
+        $scope.twitchEmbedUrl = 'http://www.twitch.tv/embed/' + $scope.twitchUsername + '/chat' + ($scope.darkMode ? '?darkpopout' : '');
+        $scope.twitchEmbedUrl = $sce.trustAsResourceUrl($scope.twitchEmbedUrl);
+    };
+    $scope.onTwitchChange();
+    $scope.$watchGroup(['darkMode', 'twitchUsername'], function (newValues, oldValues) {
+        $scope.onTwitchChange();
+    });
+    $scope.toggleDarkMode = function () {
+        $scope.darkMode = !$scope.darkMode;
+    };
+    $scope.toggleShowChart = function () {
+        $scope.showChart = !$scope.showChart;
+    };
+    $scope.darkCanvas = {
+        'background-color': '#17141f'
+    };
+    $scope.darkComponent = {
+        'background-color': '#201d2b'
+    };
+    $scope.darkText = {
+        'color': '#faf9fa'
+    };
 
     ////////////////////////////////////////
     //
