@@ -88,9 +88,9 @@ def get_esl_events():
 
 @cache.conditional_cached(timeout=settings.CACHE_FACEBOOK_TTL, refresh=settings.CACHE_FACEBOOK_REFRESH)
 def get_facebook_stream_url_core(facebook_video_url):
-    video_stream_original = get_facebook_stream_url_tahoe(facebook_video_url)
-    if not video_stream_original:
-        video_stream_original = get_facebook_stream_url_embed(facebook_video_url)
+    video_stream_original = get_facebook_stream_url_embed(facebook_video_url)
+    # if not video_stream_original:
+    #     video_stream_original = get_facebook_stream_url_tahoe(facebook_video_url, anon=False)
     if not video_stream_original:
         return None, False
     video_stream = facebook_stream_url_fixes(video_stream_original)
@@ -112,17 +112,37 @@ def extract_facebook_stream_url_from_text(video_page_text):
             return video_stream_probable_url
 
 
-def get_facebook_stream_url_tahoe(facebook_video_url):
+def get_facebook_stream_url_tahoe(facebook_video_url, anon=True):
     headers = {
         'User-Agent': settings.USER_AGENT,
     }
-    payload = {
-        '__user': '0',
-        '__a': '1',
-        '__req': '1',
-        '__be': '-1',
-        '__pc': 'PHASED:DEFAULT',
-    }
+    if anon:
+        payload = {
+            '__user': '0',
+            '__a': '1',
+            '__req': '1',
+            '__be': '-1',
+            '__pc': 'PHASED:DEFAULT',
+        }
+    else:
+        headers['Cookie'] = settings.FACEBOOK_COOKIE
+        try:
+            dtsg_token_page_text = requests.get(facebook_video_url, headers=headers, timeout=settings.REQUEST_FACEBOOK_TIMEOUT).text
+        except requests.exceptions.RequestException:
+            return
+        dtsg_token_regex = re.search(r'"token":"(.*?)"', dtsg_token_page_text)
+        if not dtsg_token_regex:
+            return
+        dtsg_token = dtsg_token_regex.group(1)
+        payload = {
+            '__user': '0',
+            '__a': '1',
+            '__req': '3',
+            '__be': '1',
+            '__pc': 'PHASED:DEFAULT',
+            'fb_dtsg': dtsg_token,
+            '__spin_b': 'trunk',
+        }
     facebook_video_id = re.search(r'videos/(\d+?)/', facebook_video_url).group(1)
     facebook_stream_fetch_url_final = facebook_stream_fetch_url.format(facebook_video_id=facebook_video_id)
     video_page_text = requests.post(facebook_stream_fetch_url_final, data=payload, headers=headers, timeout=settings.REQUEST_FACEBOOK_TIMEOUT).text
