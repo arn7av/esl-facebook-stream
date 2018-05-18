@@ -541,3 +541,21 @@ CONTROL BAR CSS NEEDS TO MOVE INTO THE CONTROL BAR
 .full-height {
     height: 100%;
 }
+
+.theatre-container {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    top: 0;
+    height: 100%;
+    z-index: 999;
+    background-color: #17141f
+}
+
+.theatre-container div {
+  width: 130%
+}
+
+.theatre-container div div {
+  padding-top: 30px;
+}
