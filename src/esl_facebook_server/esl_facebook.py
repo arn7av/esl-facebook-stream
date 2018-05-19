@@ -162,7 +162,8 @@ def get_facebook_stream_url_embed(facebook_video_url):
 
 def facebook_stream_url_fixes(facebook_stream_url):
     # facebook_stream_url += '&_nc_nc=1'
-    facebook_stream_url += '&_nc_p_n=2&_nc_p_o=4&_nc_p_rid=live-md_H264&_nc_p_arid=live-md_AAC&_nc_nc=1'
+    # facebook_stream_url += '&_nc_p_n=2&_nc_p_o=4&_nc_p_rid=live-md_H264&_nc_p_arid=live-md_AAC&_nc_nc=1'
+    facebook_stream_url += '&_nc_p_n=2&_nc_p_o=4&_nc_p_rid=live-md-v&_nc_p_arid=live-md-a&_nc_nc=1'
     facebook_stream_url = re.sub('video(.*?).fbcdn.net', 'video.xx.fbcdn.net', facebook_stream_url)
     return facebook_stream_url
 
