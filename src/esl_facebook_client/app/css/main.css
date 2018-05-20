@@ -170,6 +170,64 @@ a:hover {
     position: absolute !important;
 }
 
+
+
+/****************************
+        THEATRE MODE
+*****************************/
+
+#player.theatre {
+    /* make player (video and chat) take up full screen */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    
+    z-index: 1000;
+}
+
+#player.theatre .col-md-3 {
+    /* 35% is too wide, resize to 400px (min: 23%) and put on right side of player */
+    width: 400px;
+    min-width: 23%;
+    
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    
+    /* remove gutters from cols */
+    padding-left: 0;
+    padding-right: 0;
+}
+
+#player.theatre .col-md-9 {
+    /* since chat is 400px/23% wide, make video wrapper take up rest of space */
+    width: calc(100% - 400px);
+    max-width: calc(100% - 23%);
+    
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    
+    /* remove gutters from cols */
+    padding-left: 0;
+    padding-right: 0;
+    
+    /* center the video vertically */
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+}
+
+#player.theatre .dash-video-player #videoContainer {
+    /* make video as wide as wrapper (necessary with display: flex; on .dash-video-player) */
+    width: 100%;
+}
+
+
 /****************************
         STATS PANELS
 *****************************/
