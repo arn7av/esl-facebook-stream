@@ -183,7 +183,7 @@ a:hover {
     right: 0;
     bottom: 0;
     position: absolute;
-    
+
     z-index: 1000;
 }
 
@@ -192,12 +192,12 @@ a:hover {
     width: 400px;
     min-width: 23%;
     max-width: 31%;
-    
+
     position: absolute;
     top: 0;
     bottom: 0;
     right: 0;
-    
+
     /* remove gutters from cols */
     padding-left: 0;
     padding-right: 0;
@@ -208,20 +208,20 @@ a:hover {
     width: calc(100% - 400px);
     max-width: calc(100% - 23%);
     min-width: calc(100% - 31%);
-    
+
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
-    
+
     /* remove gutters from cols */
     padding-left: 0;
     padding-right: 0;
-    
+
     /* center the video vertically */
     display: flex;
     justify-content: center;
-    align-items: center; 
+    align-items: center;
 }
 
 #player.theatre .dash-video-player #videoContainer {
@@ -231,27 +231,19 @@ a:hover {
 
 
 /* icon for theatre mode. CSS adapted from controlbar.css */
-.icon-plus, .icon-minus {
+.icon-plus,
+.icon-minus {
     font-family: icomoon;
     font-size: 20px;
     color: #fff;
     text-shadow: none;
     -webkit-font-smoothing: antialiased;
 }
-
 .icon-plus:before {
-    content: "\ea0a";
+    content: "\e90e";
 }
 .icon-minus:before {
-    content: "\ea0b";
-}
-
-/* alternative icon pair for theatre, which is an eye with a plus and minus */
-.icon-eye-plus:before {
-    content: "\e9cf";
-}
-.icon-eye-minus:before {
-    content: "\e9d0";
+    content: "\ea0f";
 }
 
 
