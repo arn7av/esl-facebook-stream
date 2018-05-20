@@ -188,9 +188,10 @@ a:hover {
 }
 
 #player.theatre .col-md-3 {
-    /* 35% is too wide, resize to 400px (min: 23%) and put on right side of player */
+    /* 35% is too wide, resize to 400px (min: 23%, max: 31%) and put on right side of player */
     width: 400px;
     min-width: 23%;
+    max-width: 31%;
     
     position: absolute;
     top: 0;
@@ -203,9 +204,10 @@ a:hover {
 }
 
 #player.theatre .col-md-9 {
-    /* since chat is 400px/23% wide, make video wrapper take up rest of space */
+    /* since chat is 400px/23%/31% wide, make video wrapper take up rest of space */
     width: calc(100% - 400px);
     max-width: calc(100% - 23%);
+    min-width: calc(100% - 31%);
     
     position: absolute;
     top: 0;
