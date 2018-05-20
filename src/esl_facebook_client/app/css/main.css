@@ -230,6 +230,32 @@ a:hover {
 }
 
 
+/* icon for theatre mode. CSS adapted from controlbar.css */
+.icon-plus, .icon-minus {
+    font-family: icomoon;
+    font-size: 20px;
+    color: #fff;
+    text-shadow: none;
+    -webkit-font-smoothing: antialiased;
+}
+
+.icon-plus:before {
+    content: "\ea0a";
+}
+.icon-minus:before {
+    content: "\ea0b";
+}
+
+/* alternative icon pair for theatre, which is an eye with a plus and minus */
+.icon-eye-plus:before {
+    content: "\e9cf";
+}
+.icon-eye-minus:before {
+    content: "\e9d0";
+}
+
+
+
 /****************************
         STATS PANELS
 *****************************/
