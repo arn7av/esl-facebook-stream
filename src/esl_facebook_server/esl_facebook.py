@@ -280,5 +280,15 @@ def fetch_esl_event_streams(esl_event_id):
     return final_esl_facebook_streams
 
 
+def get_default_event_family_streams():
+    default_event = get_esl_event()
+    return fetch_esl_event_streams(default_event['event_id']) if default_event else None
+
+
+def get_default_event_family_first_stream_url():
+    default_event_family_streams = get_default_event_family_streams()
+    return default_event_family_streams[0]['video_stream'] if default_event_family_streams else None
+
+
 if __name__ == "__main__":
-    raise SystemExit(fetch_esl_event_streams(get_esl_event()['event_id']))
+    raise SystemExit(get_default_event_family_streams())
