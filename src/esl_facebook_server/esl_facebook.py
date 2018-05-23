@@ -49,7 +49,7 @@ def get_esl_event_core(event_family):
         esl_event_json = requests.get(esl_event_url.format(
             esl_event_domain=esl_event_domain, esl_event_path=esl_event_path
         ), timeout=settings.REQUEST_ESL_TIMEOUT).json()
-    except requests.exceptions.RequestException:
+    except (requests.exceptions.RequestException, ValueError):
         return None, False
     try:
         event_id = esl_event_json['items'][0]['pidchannels']
@@ -181,7 +181,7 @@ def get_esl_event_facebook_videos(esl_event_id):
 
     try:
         esl_event_live_videos_json = requests.get(esl_channel_url.format(esl_event_id=esl_event_id), timeout=settings.REQUEST_ESL_TIMEOUT).json()
-    except requests.exceptions.RequestException:
+    except (requests.exceptions.RequestException, ValueError):
         return None, False
 
     for live_video in esl_event_live_videos_json:
@@ -219,7 +219,7 @@ def get_facebook_page_facebook_videos(facebook_page_username):
         facebook_page_live_videos_json = requests.get(facebook_graph_page_live_videos_url.format(
             facebook_page_username=facebook_page_username, facebook_access_token=settings.FACEBOOK_ACCESS_TOKEN
         ), timeout=settings.REQUEST_FACEBOOK_TIMEOUT).json()
-    except requests.exceptions.RequestException:
+    except (requests.exceptions.RequestException, ValueError):
         return None, False
 
     for live_video in facebook_page_live_videos_json.get('data', []):
