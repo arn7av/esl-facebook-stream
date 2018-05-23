@@ -244,14 +244,10 @@ def get_facebook_page_facebook_videos(facebook_page_username):
     }, True
 
 
-def fetch_esl_event_streams(esl_event_id):
-    esl_event = None
-    for event_family, esl_event_dict in get_esl_event_family_dict().items():
-        if esl_event_id in esl_event_dict['event_id_list']:
-            esl_event = esl_event_dict
-            break
-
+def merge_order_facebook_videos(esl_event_id, esl_event):
     esl_facebook_streams = get_esl_event_facebook_videos(esl_event_id)['esl_facebook_videos'] if get_esl_event_facebook_videos(esl_event_id) else OrderedDict()
+    for video_dict in esl_facebook_streams.values():
+        video_dict['weight'] = 1
 
     if esl_event:
         event_facebook_list = esl_event.get('event_facebook_list', [])
@@ -259,7 +255,23 @@ def fetch_esl_event_streams(esl_event_id):
             esl_facebook_page_videos = get_facebook_page_facebook_videos(event_facebook)['esl_facebook_videos'] if get_facebook_page_facebook_videos(event_facebook) else OrderedDict()
             for video_id, video_dict in reversed(esl_facebook_page_videos.items()):
                 if video_id not in esl_facebook_streams:
+                    video_dict['weight'] = 3
                     esl_facebook_streams[video_id] = video_dict
+                else:
+                    esl_facebook_streams[video_id]['weight'] += 1
+
+    esl_facebook_streams_ordered = OrderedDict((k, v) for k, v in sorted(esl_facebook_streams.items(), key=lambda item: item[1]['weight'], reverse=True))
+    return esl_facebook_streams_ordered
+
+
+def fetch_esl_event_streams(esl_event_id):
+    esl_event = None
+    for event_family, esl_event_dict in get_esl_event_family_dict().items():
+        if esl_event_id in esl_event_dict['event_id_list']:
+            esl_event = esl_event_dict
+            break
+
+    esl_facebook_streams = merge_order_facebook_videos(esl_event_id, esl_event)
 
     final_esl_facebook_streams = []
 
