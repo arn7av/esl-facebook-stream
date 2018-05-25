@@ -236,6 +236,7 @@ app.controller('DashController', function ($scope, $sce) {
     $scope.errorType = '';
 
     // Additions
+    $scope.theatreMode = false;
     $scope.darkMode = false;
     $scope.showChart = false;
     $scope.twitchPrimaryUsername = 'arn7av';

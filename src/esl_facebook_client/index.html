@@ -208,7 +208,7 @@
         </div>
 
         <!--VIDEO PLAYER / CONTROLS -->
-        <div class="row flex-container-row">
+        <div class="row flex-container-row" ng-class="{'theatre-container': theatreMode}" ng-style="darkMode ? darkCanvas : {}">
             <div class="dash-video-player col-md-9">
                 <div id="videoContainer" class="videoContainer">
                     <video></video>
@@ -265,6 +265,11 @@
                       <li>
                           <a href="#audioStatsTab" role="tab" data-toggle="tab">
                               Audio
+                          </a>
+                      </li>
+                      <li>
+                          <a class="btn btn-primary btn-sm" ng-click="theatreMode = !theatreMode">
+                              Theatre Mode
                           </a>
                       </li>
                     </ul>
