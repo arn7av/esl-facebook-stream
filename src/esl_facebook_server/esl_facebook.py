@@ -75,14 +75,18 @@ def get_esl_event(event_family=settings.DEFAULT_EVENT_FAMILY):
             'event_id': esl_event_dict['event_id_list'][0],
             'event_name': event_family,
         }
-    if event_ret:
-        event_ret['weight'] = esl_event_dict['weight']
+    # if event_ret:
+    event_ret['weight'] = esl_event_dict['weight']
+    event_ret['twitch_primary'] = esl_event_dict.get('twitch_primary', True)
     return event_ret
 
 
 def get_esl_events():
     esl_events = []
-    for event_family in get_esl_event_family_dict():
+    for event_family, esl_event_dict in get_esl_event_family_dict().items():
+        active = esl_event_dict.get('active', True)
+        if not active:
+            continue
         esl_event = get_esl_event(event_family)
         if esl_event:
             esl_event['event_family'] = event_family
@@ -250,14 +254,16 @@ def get_facebook_page_facebook_videos(facebook_page_username):
 
 
 def merge_order_facebook_videos(esl_event_id, esl_event):
-    esl_facebook_streams = get_esl_event_facebook_videos(esl_event_id)['esl_facebook_videos'] if get_esl_event_facebook_videos(esl_event_id) else OrderedDict()
+    esl_event_facebook_videos_dict = get_esl_event_facebook_videos(esl_event_id)
+    esl_facebook_streams = esl_event_facebook_videos_dict['esl_facebook_videos'] if esl_event_facebook_videos_dict else OrderedDict()
     for video_dict in esl_facebook_streams.values():
         video_dict['weight'] = 1
 
     if esl_event:
         event_facebook_list = esl_event.get('event_facebook_list', [])
         for event_facebook in event_facebook_list:
-            esl_facebook_page_videos = get_facebook_page_facebook_videos(event_facebook)['esl_facebook_videos'] if get_facebook_page_facebook_videos(event_facebook) else OrderedDict()
+            facebook_page_facebook_videos_dict = get_facebook_page_facebook_videos(event_facebook)
+            esl_facebook_page_videos = facebook_page_facebook_videos_dict['esl_facebook_videos'] if facebook_page_facebook_videos_dict else OrderedDict()
             for video_id, video_dict in reversed(esl_facebook_page_videos.items()):
                 if video_id not in esl_facebook_streams:
                     video_dict['weight'] = 3
@@ -286,8 +292,8 @@ def fetch_esl_event_streams(esl_event_id):
             video_dict.update(stream_dict)
 
         if 'video_stream' in video_dict:
-            if video_dict['video_stream'] in [e['video_stream'] for e in final_esl_facebook_streams]:
-                continue
+            # if video_dict['video_stream'] in [e['video_stream'] for e in final_esl_facebook_streams]:
+            #     continue
             final_stream_dict = {}
             final_stream_dict.update(video_dict)
             final_esl_facebook_streams.append(final_stream_dict)

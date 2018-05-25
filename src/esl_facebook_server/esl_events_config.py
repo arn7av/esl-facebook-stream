@@ -10,6 +10,7 @@ ESL_EVENT_FAMILY_DICT = OrderedDict([
             'event_id_list': [11092],
             'event_facebook_list': ['WatchESLOne'],
             'weight': 1,
+            'active': True,
         }
     ),
     (
@@ -20,26 +21,30 @@ ESL_EVENT_FAMILY_DICT = OrderedDict([
             'event_id_list': [11224],
             'event_facebook_list': ['ESLOneCSGO'],
             'weight': 2,
+            'active': True,
+            'twitch_primary': False,
         }
     ),
-    # (
-    #     'proleague_csgo',
-    #     {
-    #         'event_domain': 'live.proleague.com',
-    #         'event_path': '/csgo',
-    #         'event_id_list': [4090],
-    #         'event_facebook_list': ['ESLProLeagueCSGO'],
-    #         'weight': 3,
-    #     }
-    # ),
-    # (
-    #     'iem',
-    #     {
-    #         'event_domain': 'live.intelextrememasters.com',
-    #         'event_path': '/',
-    #         'event_id_list': [11062],
-    #         'event_facebook_list': ['WatchIEM'],
-    #         'weight': 4,
-    #     }
-    # ),
+    (
+        'proleague_csgo',
+        {
+            'event_domain': 'live.proleague.com',
+            'event_path': '/csgo',
+            'event_id_list': [4090],
+            'event_facebook_list': ['ESLProLeagueCSGO'],
+            'weight': 3,
+            'active': False,
+        }
+    ),
+    (
+        'iem',
+        {
+            'event_domain': 'live.intelextrememasters.com',
+            'event_path': '/',
+            'event_id_list': [11062],
+            'event_facebook_list': ['WatchIEM'],
+            'weight': 4,
+            'active': False,
+        }
+    ),
 ])
