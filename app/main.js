@@ -238,14 +238,18 @@ app.controller('DashController', function ($scope, $sce) {
     // Additions
     $scope.darkMode = false;
     $scope.showChart = false;
-    $scope.twitchUsername = 'arn7av';
+    $scope.twitchPrimaryUsername = 'arn7av';
+    $scope.twitchSecondaryUsername = 'arn_av';
+    $scope.twitchPrimary = true;
+    $scope.twitchUsername = '';
     $scope.twitchEmbedUrl = '';
     $scope.onTwitchChange = function () {
+        $scope.twitchUsername = $scope.twitchPrimary ? $scope.twitchPrimaryUsername : $scope.twitchSecondaryUsername;
         $scope.twitchEmbedUrl = 'https://www.twitch.tv/embed/' + $scope.twitchUsername + '/chat' + ($scope.darkMode ? '?darkpopout' : '');
         $scope.twitchEmbedUrl = $sce.trustAsResourceUrl($scope.twitchEmbedUrl);
     };
     $scope.onTwitchChange();
-    $scope.$watchGroup(['darkMode', 'twitchUsername'], function (newValues, oldValues) {
+    $scope.$watchGroup(['darkMode', 'twitchPrimary'], function (newValues, oldValues) {
         $scope.onTwitchChange();
     });
     $scope.toggleDarkMode = function () {
@@ -253,6 +257,9 @@ app.controller('DashController', function ($scope, $sce) {
     };
     $scope.toggleShowChart = function () {
         $scope.showChart = !$scope.showChart;
+    };
+    $scope.switchTwitchChatChannel = function () {
+        $scope.twitchPrimary = !$scope.twitchPrimary;
     };
     $scope.darkCanvas = {
         'background-color': '#17141f'
