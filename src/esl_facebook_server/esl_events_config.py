@@ -22,24 +22,24 @@ ESL_EVENT_FAMILY_DICT = OrderedDict([
             'weight': 2,
         }
     ),
-    (
-        'proleague_csgo',
-        {
-            'event_domain': 'live.proleague.com',
-            'event_path': '/csgo',
-            'event_id_list': [4090],
-            'event_facebook_list': ['ESLProLeagueCSGO'],
-            'weight': 3,
-        }
-    ),
-    (
-        'iem',
-        {
-            'event_domain': 'live.intelextrememasters.com',
-            'event_path': '/',
-            'event_id_list': [11062],
-            'event_facebook_list': ['WatchIEM'],
-            'weight': 4,
-        }
-    ),
+    # (
+    #     'proleague_csgo',
+    #     {
+    #         'event_domain': 'live.proleague.com',
+    #         'event_path': '/csgo',
+    #         'event_id_list': [4090],
+    #         'event_facebook_list': ['ESLProLeagueCSGO'],
+    #         'weight': 3,
+    #     }
+    # ),
+    # (
+    #     'iem',
+    #     {
+    #         'event_domain': 'live.intelextrememasters.com',
+    #         'event_path': '/',
+    #         'event_id_list': [11062],
+    #         'event_facebook_list': ['WatchIEM'],
+    #         'weight': 4,
+    #     }
+    # ),
 ])
