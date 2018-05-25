@@ -70,6 +70,11 @@ def get_esl_event(event_family=settings.DEFAULT_EVENT_FAMILY):
     if not esl_event_dict:
         return
     event_ret = get_esl_event_core(event_family)
+    if not event_ret:
+        event_ret = {
+            'event_id': esl_event_dict['event_id_list'][0],
+            'event_name': event_family,
+        }
     if event_ret:
         event_ret['weight'] = esl_event_dict['weight']
     return event_ret
