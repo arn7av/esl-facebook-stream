@@ -59,6 +59,10 @@ app.controller('DashController', function ($scope, $sce) {
         $scope.stream_list_promise(item).done(function () {
             if ($scope.stream_list.length) {
                 $scope.stream_click($scope.stream_list[0]);
+                var twitch_primary = item['twitch_primary'] !== false;
+                if (twitch_primary !== $scope.twitchPrimary) {
+                    $scope.twitchPrimary = twitch_primary;
+                }
             }
         });
     };
@@ -236,7 +240,7 @@ app.controller('DashController', function ($scope, $sce) {
     $scope.errorType = '';
 
     // Additions
-    $scope.darkMode = false;
+    $scope.darkMode = true;
     $scope.showChart = false;
     $scope.twitchPrimaryUsername = 'arn7av';
     $scope.twitchSecondaryUsername = 'arn_av';

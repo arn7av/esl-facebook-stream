@@ -8,7 +8,8 @@ from esl_facebook import fetch_esl_event_streams, get_esl_event, get_esl_events,
 
 app = Flask(__name__)
 api = Api(app)
-CORS(app, origins='https:\/\/(.+\.)?atx\.sx')
+cors_origins = 'https:\/\/(.+\.)?atx\.sx' if not settings.CORS_ALL_ORIGINS else '*'
+CORS(app, origins=cors_origins)
 
 
 class EslFacebookStream(Resource):

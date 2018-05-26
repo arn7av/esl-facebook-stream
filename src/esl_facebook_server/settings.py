@@ -1,6 +1,7 @@
 import os
 
 DEBUG = False
+CORS_ALL_ORIGINS = False
 
 # TTL, Refresh, Timeout in Seconds
 CACHE_ESL_EVENT_TTL = 2 * 60 * 60
