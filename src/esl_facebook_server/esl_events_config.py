@@ -2,27 +2,27 @@ from collections import OrderedDict
 
 ESL_EVENT_FAMILY_DICT = OrderedDict([
     (
-        'one',
+        'one_dota',
         {
             'event_domain': 'live.esl-one.com',
-            # 'event_path': '/',
             'event_path': '/birmingham',
             'event_id_list': [11092],
             'event_facebook_list': ['WatchESLOne'],
             'weight': 1,
-            'active': True,
+            'active': False,
+            'twitch_primary': True,
         }
     ),
     (
-        'one_alt',
+        'one_csgo',
         {
             'event_domain': 'live.esl-one.com',
-            'event_path': '/cologne',
-            'event_id_list': [11224],
+            'event_path': '/belohorizonte',
+            'event_id_list': [11338],
             'event_facebook_list': ['ESLOneCSGO'],
             'weight': 2,
             'active': True,
-            'twitch_primary': False,
+            'twitch_primary': True,
         }
     ),
     (

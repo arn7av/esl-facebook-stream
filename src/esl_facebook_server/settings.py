@@ -26,7 +26,7 @@ REDIS_DB = 0
 # FACEBOOK_ACCESS_TOKEN = os.environ.get('FACEBOOK_ACCESS_TOKEN')
 # FACEBOOK_COOKIE = os.environ.get('FACEBOOK_COOKIE')
 
-DEFAULT_EVENT_FAMILY = 'one'
+DEFAULT_EVENT_FAMILY = 'one_dota'
 
 try:
     from local_settings import *
