@@ -266,10 +266,13 @@ def merge_order_facebook_videos(esl_event_id, esl_event):
             esl_facebook_page_videos = facebook_page_facebook_videos_dict['esl_facebook_videos'] if facebook_page_facebook_videos_dict else OrderedDict()
             for video_id, video_dict in reversed(esl_facebook_page_videos.items()):
                 if video_id not in esl_facebook_streams:
-                    video_dict['weight'] = 3
+                    video_dict['weight'] = 5 if settings.PRIORITIZE_FACEBOOK_EXCLUSIVE else 2
                     esl_facebook_streams[video_id] = video_dict
                 else:
-                    esl_facebook_streams[video_id]['weight'] += 1
+                    if 'main' in esl_facebook_streams[video_id].get('stream_name', '').lower():
+                        esl_facebook_streams[video_id]['weight'] = 4
+                    else:
+                        esl_facebook_streams[video_id]['weight'] = 3
 
     esl_facebook_streams_ordered = OrderedDict((k, v) for k, v in sorted(esl_facebook_streams.items(), key=lambda item: item[1]['weight'], reverse=True))
     return esl_facebook_streams_ordered

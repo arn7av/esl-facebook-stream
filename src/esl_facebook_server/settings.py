@@ -27,6 +27,7 @@ REDIS_DB = 0
 # FACEBOOK_COOKIE = os.environ.get('FACEBOOK_COOKIE')
 
 DEFAULT_EVENT_FAMILY = 'one_dota'
+PRIORITIZE_FACEBOOK_EXCLUSIVE = False
 
 try:
     from local_settings import *
