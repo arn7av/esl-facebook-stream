@@ -51,6 +51,7 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
         muteBtn,
         volumebar,
         fullscreenBtn,
+        theatreBtn,
         timeDisplay,
         durationDisplay,
         thumbnailContainer,
@@ -84,6 +85,7 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
             muteBtn = document.getElementById(getControlId("muteBtn"));
             volumebar = document.getElementById(getControlId("volumebar"));
             fullscreenBtn = document.getElementById(getControlId("fullscreenBtn"));
+            theatreBtn = document.getElementById(getControlId("theatreBtn"));
             timeDisplay = document.getElementById(getControlId("videoTime"));
             durationDisplay = document.getElementById(getControlId("videoDuration"));
             thumbnailContainer = document.getElementById(getControlId("thumbnail-container")),
@@ -428,6 +430,37 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
             }
             if (trackSwitchMenu) {
                 trackSwitchMenu.classList.add("hide");
+            }
+        },
+
+//************************************************************************************
+// THEATRE MODE
+// Created by JeroenPJ, adapted from fullscreen mode
+//************************************************************************************
+
+        isTheatre = function () {
+            return document.getElementById("player").className.match(/\btheatre\b/) !== null;
+        },
+
+        enterTheatre = function () {
+            document.getElementById("player").classList.add('theatre');
+            var icon = theatreBtn.querySelector(".icon-plus");
+            icon.classList.remove("icon-plus");
+            icon.classList.add("icon-minus");
+        },
+
+        exitTheatre = function () {
+            document.getElementById("player").classList.remove('theatre');
+            var icon = theatreBtn.querySelector(".icon-minus");
+            icon.classList.remove("icon-minus");
+            icon.classList.add("icon-plus");
+        },
+
+        onTheatreClick = function (e) {
+            if (!isTheatre()) {
+                enterTheatre();
+            } else {
+                exitTheatre();
             }
         },
 
@@ -846,6 +879,7 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
             playPauseBtn.addEventListener("click", onPlayPauseClick);
             muteBtn.addEventListener("click", onMuteClick);
             fullscreenBtn.addEventListener("click", onFullscreenClick);
+            theatreBtn.addEventListener("click", onTheatreClick);
             seekbar.addEventListener("mousedown", onSeeking, true);
             seekbar.addEventListener("mousemove", onSeekBarMouseMove, true);
             // set passive to true for scroll blocking listeners (https://www.chromestatus.com/feature/5745543795965952)
@@ -918,6 +952,7 @@ var ControlBar = function (dashjsMediaPlayer, displayUTCTimeCodes) {
             playPauseBtn.removeEventListener("click", onPlayPauseClick);
             muteBtn.removeEventListener("click", onMuteClick);
             fullscreenBtn.removeEventListener("click", onFullscreenClick);
+            theatreBtn.removeEventListener("click", onTheatreClick);
             seekbar.removeEventListener("mousedown", onSeeking);
             volumebar.removeEventListener("input", setVolume);
             seekbar.removeEventListener("mousemove", onSeekBarMouseMove);
