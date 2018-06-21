@@ -17,8 +17,8 @@ ESL_EVENT_FAMILY_DICT = OrderedDict([
         'one_csgo',
         {
             'event_domain': 'live.esl-one.com',
-            'event_path': '/belohorizonte',
-            'event_id_list': [11338],
+            'event_path': '/cologne',
+            'event_id_list': [11224],
             'event_facebook_list': ['ESLOneCSGO'],
             'weight': 2,
             'active': True,
