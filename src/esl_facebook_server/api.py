@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, make_response
+from flask import Flask, make_response
 from flask_cors import CORS
 from flask_restful import abort, Api, Resource
 
@@ -7,6 +7,8 @@ from esl_facebook import fetch_esl_event_streams, get_esl_event, get_esl_events,
     get_default_event_family_first_stream_url
 
 app = Flask(__name__)
+app.config['RESTFUL_JSON'] = {'cls': app.json_encoder}
+
 api = Api(app)
 cors_origins = 'https:\/\/(.+\.)?atx\.sx' if not settings.CORS_ALL_ORIGINS else '*'
 CORS(app, origins=cors_origins)
@@ -15,13 +17,13 @@ CORS(app, origins=cors_origins)
 class EslFacebookStream(Resource):
     def get(self, esl_event_id):
         streams = fetch_esl_event_streams(esl_event_id)
-        return jsonify(streams)
+        return streams
 
 
 class EslDefaultEventFamilyFacebookStream(Resource):
     def get(self):
         streams = get_default_event_family_streams()
-        return jsonify(streams)
+        return streams
 
 
 class EslDefaultEventFamilyFirstFacebookStreamUrl(Resource):
@@ -37,12 +39,12 @@ class EslEvent(Resource):
         event = get_esl_event(esl_sport)
         if not event:
             abort(404, message='invalid sport')
-        return jsonify(event)
+        return event
 
 
 class EslEventList(Resource):
     def get(self):
-        return jsonify(get_esl_events())
+        return get_esl_events()
 
 
 class Root(Resource):
