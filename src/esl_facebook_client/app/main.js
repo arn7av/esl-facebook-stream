@@ -290,10 +290,17 @@ app.controller('DashController', function ($scope, $sce) {
     $scope.darkText = {
         'color': '#faf9fa'
     };
-    $scope.darkTab = {
+    $scope.darkNav = {
         'border-color': '#50476b',
-        'background-color': '#201d2b',
+        'background-color': '#17141f',
         'color': '#faf9fa'
+    };
+    $scope.lightNav = {
+        // default bootstrap styling, gotta set it because tabs now always
+        // inherit from .nav-tabs
+        'border-color': '#ddd',
+        'background-color': 'transparent',
+        'color': '#555'
     };
 
     ////////////////////////////////////////

@@ -249,6 +249,33 @@ a:hover {
 }
 
 
+
+/****************************
+        DARK MODE
+*****************************/
+
+/* Make tab button inherit styling, gonna be set by ng-style on .nav-tabs */
+.nav-tabs > li.active {
+  border-color: inherit;
+  color: inherit;
+}
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+  border-color: inherit;
+  /* make background of active tab a little brighter */
+  background-color: rgba(255, 255, 255, 0.07);
+  color: inherit;
+
+  border-bottom: none;
+}
+
+.nav-tabs > li > a {
+  border-bottom: none;
+}
+
+
+
 /****************************
         STATS PANELS
 *****************************/
