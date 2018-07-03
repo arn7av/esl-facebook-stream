@@ -67,9 +67,15 @@ app.controller('DashController', function ($scope, $sce) {
         });
     };
 
+    $scope.setUrl = function () {
+        $scope.selectedItem.url = $scope.alternateServer ? $scope.selectedItem.stream_url_alternate : $scope.selectedItem.stream_url;
+    };
+
     $scope.stream_click = function (item) {
         console.log(item);
-        $scope.selectedItem.url = item['video_stream'];
+        $scope.selectedItem.stream_url = item['video_stream'];
+        $scope.selectedItem.stream_url_alternate = item['video_stream_original'];
+        $scope.setUrl();
         $scope.selectedItem.title = item['stream_name'];
         $scope.selectedItem.source_url = item['video_url'];
         $scope.doLoad();
@@ -257,6 +263,7 @@ app.controller('DashController', function ($scope, $sce) {
 
     // Additions
     $scope.darkMode = true;
+    $scope.alternateServer = false;
     $scope.showChart = false;
     $scope.twitchPrimaryUsername = 'arn7av';
     $scope.twitchSecondaryUsername = 'arn_av';
@@ -274,6 +281,11 @@ app.controller('DashController', function ($scope, $sce) {
     });
     $scope.toggleDarkMode = function () {
         $scope.darkMode = !$scope.darkMode;
+    };
+    $scope.toggleAlternateServer = function () {
+        $scope.alternateServer = !$scope.alternateServer;
+        $scope.setUrl();
+        $scope.doLoad();
     };
     $scope.toggleShowChart = function () {
         $scope.showChart = !$scope.showChart;
