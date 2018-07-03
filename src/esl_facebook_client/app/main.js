@@ -290,6 +290,11 @@ app.controller('DashController', function ($scope, $sce) {
     $scope.darkText = {
         'color': '#faf9fa'
     };
+    $scope.darkTab = {
+        'border-color': '#50476b',
+        'background-color': '#201d2b',
+        'color': '#faf9fa'
+    };
 
     ////////////////////////////////////////
     //

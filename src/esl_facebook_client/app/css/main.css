@@ -189,10 +189,10 @@ a:hover {
 }
 
 #player.theatre .col-md-3 {
-    /* 35% is too wide, resize to 400px (min: 23%, max: 31%) and put on right side of player */
-    width: 400px;
-    min-width: 23%;
-    max-width: 31%;
+    /* 35% is too wide, resize to 400px (min: 22%, max: 29%) and put on right side of player */
+    width: 350px;
+    min-width: 21%;
+    max-width: 29%;
 
     position: absolute;
     top: 0;
@@ -205,10 +205,11 @@ a:hover {
 }
 
 #player.theatre .col-md-9 {
-    /* since chat is 400px/23%/31% wide, make video wrapper take up rest of space */
-    width: calc(100% - 400px);
-    max-width: calc(100% - 23%);
-    min-width: calc(100% - 31%);
+    /* make video wrapper take up the rest of the space, aka 100% minus chat width */
+    /* Also add 1px to hide the tiny gap in between video and chat */
+    width: calc(100% - 350px + 1px);
+    max-width: calc(100% - 22% + 1px);
+    min-width: calc(100% - 29% + 1px);
 
     position: absolute;
     top: 0;
@@ -247,6 +248,16 @@ a:hover {
     content: "\e90f";
 }
 
+
+/****************************
+        DARK MODE
+*****************************/
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+
+}
 
 
 /****************************
