@@ -178,9 +178,7 @@ def facebook_stream_url_fixes(facebook_stream_url):
 
 
 def get_video_url_from_embed_html(embed_html):
-    embed_regex = re.search(r'href=(.*?)&', embed_html)
-    if not embed_regex:
-        embed_regex = re.search(r'href=(.*?)$', embed_html)
+    embed_regex = re.search(r'href=(.*?)(&|$)', embed_html)
     if not embed_regex:
         return None, None
     video_url = urllib.parse.unquote(embed_regex.group(1))
