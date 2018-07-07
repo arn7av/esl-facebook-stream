@@ -82,7 +82,7 @@ app.controller('DashController', function ($scope, $sce) {
     };
 
     $scope.get_facebook_embed_url = function () {
-        return $scope.selectedItem.source_url ? 'https://www.facebook.com/embedvideo/video.php?href=' + encodeURIComponent($scope.selectedItem.source_url) : '#';
+        return $scope.selectedItem && $scope.selectedItem.source_url ? 'https://www.facebook.com/embedvideo/video.php?href=' + encodeURIComponent($scope.selectedItem.source_url) : '#';
     };
 
     $scope.on_page_load = function () {
