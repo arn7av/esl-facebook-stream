@@ -239,27 +239,27 @@
                     <video></video>
                     <div id="video-caption"></div>
                     <div id="videoController" class="video-controller unselectable" ng-cloak>
-                        <div id="playPauseBtn" class="btn-play-pause" data-toggle="tooltip" data-placement="bottom" title="Play/Pause">
+                        <div id="playPauseBtn" class="btn-play-pause" data-toggle="tooltip" data-placement="top" title="Play/Pause">
                             <span id="iconPlayPause" class="icon-play"></span>
                         </div>
                         <span id="videoTime" class="time-display">00:00:00</span>
-                        <div id="fullscreenBtn" class="btn-fullscreen control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Fullscreen">
+                        <div id="fullscreenBtn" class="btn-fullscreen control-icon-layout" data-toggle="tooltip" data-placement="top" title="Fullscreen">
                             <span class="icon-fullscreen-enter"></span>
                         </div>
-                        <div id="theatreBtn" class="btn-theatre control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Theatre mode">
+                        <div id="theatreBtn" class="btn-theatre control-icon-layout" data-toggle="tooltip" data-placement="top" title="Theatre mode">
                             <span class="icon-plus"></span>
                         </div>
-                        <div id="bitrateListBtn" class="btn-bitrate control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Bitrate List">
+                        <div id="bitrateListBtn" class="btn-bitrate control-icon-layout" data-toggle="tooltip" data-placement="top" title="Bitrate List">
                             <span class="icon-bitrate"></span>
                         </div>
                         <input type="range" id="volumebar" class="volumebar" value="1" min="0" max="1" step=".01"/>
-                        <div id="muteBtn" class="btn-mute control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Mute">
+                        <div id="muteBtn" class="btn-mute control-icon-layout" data-toggle="tooltip" data-placement="top" title="Mute">
                             <span id="iconMute" class="icon-mute-off"></span>
                         </div>
-                        <div id="trackSwitchBtn" class="btn-track-switch control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Track List">
+                        <div id="trackSwitchBtn" class="btn-track-switch control-icon-layout" data-toggle="tooltip" data-placement="top" title="Track List">
                             <span class="icon-tracks"></span>
                         </div>
-                        <div id="captionBtn" class="btn-caption control-icon-layout" data-toggle="tooltip" data-placement="bottom" title="Closed Caption / Subtitles">
+                        <div id="captionBtn" class="btn-caption control-icon-layout" data-toggle="tooltip" data-placement="top" title="Closed Caption / Subtitles">
                             <span class="icon-caption"></span>
                         </div>
                         <span id="videoDuration" class="duration-display">00:00:00</span>
@@ -280,7 +280,7 @@
             <!-- STATS TAB CONTENT -->
             <div class="col-md-3 tabs-section flex-container-column">
                 <div class="flex-item-grow flex-container-column">
-                    <ul class="nav nav-tabs" role="tablist">
+                    <ul class="nav nav-tabs" role="tablist" ng-style="darkMode ? darkNav : lightNav">
                       <li class="active">
                           <a href="#twitchChatTab" role="tab" data-toggle="tab">
                               Twitch {{ twitchUsername }} Chat
