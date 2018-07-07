@@ -82,7 +82,7 @@ app.controller('DashController', function ($scope, $sce) {
     };
 
     $scope.get_facebook_embed_url = function () {
-        return $scope.selectedItem.source_url ? 'https://www.facebook.com/embedvideo/video.php?href=' + encodeURIComponent($scope.selectedItem.source_url) : '#';
+        return $scope.selectedItem && $scope.selectedItem.source_url ? 'https://www.facebook.com/embedvideo/video.php?href=' + encodeURIComponent($scope.selectedItem.source_url) : '#';
     };
 
     $scope.on_page_load = function () {
@@ -301,6 +301,18 @@ app.controller('DashController', function ($scope, $sce) {
     };
     $scope.darkText = {
         'color': '#faf9fa'
+    };
+    $scope.darkNav = {
+        'border-color': '#50476b',
+        'background-color': '#17141f',
+        'color': '#faf9fa'
+    };
+    $scope.lightNav = {
+        // default bootstrap styling, gotta set it because tabs now always
+        // inherit from .nav-tabs
+        'border-color': '#ddd',
+        'background-color': 'transparent',
+        'color': '#555'
     };
 
     ////////////////////////////////////////
