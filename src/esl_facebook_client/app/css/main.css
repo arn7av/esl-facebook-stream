@@ -211,14 +211,14 @@ a:hover {
     max-width: calc(100% - 21% + 1px);
     min-width: calc(100% - 29% + 1px);
 
-    position: absolute;
+    /* Not sure if necessary or not, trying without */
+    /*position: absolute;
     top: 0;
     bottom: 0;
-    left: 0;
+    left: 0;*/
 
-    /* remove gutters from cols */
-    padding-left: 0;
-    padding-right: 0;
+    /* remove padding (incl. gutters from cols) */
+    padding: 0;
 
     /* center the video vertically */
     display: flex;
@@ -229,6 +229,25 @@ a:hover {
 #player.theatre .dash-video-player #videoContainer {
     /* make video as wide as wrapper (necessary with display: flex; on .dash-video-player) */
     width: 100%;
+}
+
+
+#player.theatre .dash-video-player #videoContainer video {
+    width: 100%;
+    height: calc(100vh - 35px);
+    /* If the controlBar is going to be hidden, height should be 100vh */
+
+    margin: auto;
+}
+
+#player.theatre .dash-video-player #videoContainer #videoController {
+    height: 35px;
+
+    /* If the controlBar is going to be hidden, this styling should be added: */
+    /*position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;*/
 }
 
 
