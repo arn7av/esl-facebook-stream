@@ -208,7 +208,7 @@ a:hover {
     /* make video wrapper take up the rest of the space, aka 100% minus chat width */
     /* Also add 1px to hide the tiny gap in between video and chat */
     width: calc(100% - 350px + 1px);
-    max-width: calc(100% - 22% + 1px);
+    max-width: calc(100% - 21% + 1px);
     min-width: calc(100% - 29% + 1px);
 
     position: absolute;
