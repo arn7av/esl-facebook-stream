@@ -19,6 +19,7 @@ esl_channel_url = esl_url_root + '/channel/eventchannels?pid={esl_event_id}&hide
 facebook_graph_page_url = facebook_graph_url_root + '/{facebook_id}?fields=link,username&access_token={facebook_app_id}|{facebook_app_secret}'
 facebook_graph_page_live_videos_url = facebook_graph_url_root + '/{facebook_page_username}/live_videos?access_token={facebook_access_token}'
 facebook_stream_fetch_url = 'https://www.facebook.com/video/tahoe/async/{facebook_video_id}/?chain=true&isvideo=true&originalmediaid={facebook_video_id}&playerorigin=permalink&playersuborigin=tahoe&ispermalink=true&numcopyrightmatchedvideoplayedconsecutively=0&dpr=1'  # dpr = device pixel ratio
+facebook_stream_fetch_identifier_url = 'https://www.facebook.com/video/tahoe/async/{facebook_video_id}/?originalmediaid={facebook_video_id}&playerorigin=permalink&playersuborigin=tahoe&ispermalink=true&numcopyrightmatchedvideoplayedconsecutively=0&payloadtype=all&storyidentifier={identifier}&dpr=1'
 facebook_video_embed_url = 'https://www.facebook.com/embedvideo/video.php'
 
 db = Database(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
@@ -98,8 +99,8 @@ def get_esl_events():
 @cache.conditional_cached(timeout=settings.CACHE_FACEBOOK_TTL, refresh=settings.CACHE_FACEBOOK_REFRESH)
 def get_facebook_stream_url_core(facebook_video_url):
     video_stream_original = get_facebook_stream_url_embed(facebook_video_url)
-    # if not video_stream_original:
-    #     video_stream_original = get_facebook_stream_url_tahoe(facebook_video_url, anon=False)
+    if not video_stream_original:
+        video_stream_original = get_facebook_stream_url_tahoe(facebook_video_url, anon=False)
     if not video_stream_original:
         return None, False
     video_stream = facebook_stream_url_fixes(video_stream_original)
@@ -125,6 +126,7 @@ def get_facebook_stream_url_tahoe(facebook_video_url, anon=True):
     headers = {
         'User-Agent': settings.USER_AGENT,
     }
+    identifier = None
     if anon:
         payload = {
             '__user': '0',
@@ -140,9 +142,12 @@ def get_facebook_stream_url_tahoe(facebook_video_url, anon=True):
         except requests.exceptions.RequestException:
             return
         dtsg_token_regex = re.search(r'"token":"(.*?)"', dtsg_token_page_text)
+        identifier_regex = re.search(r'\?ref=tahoe","(.*?)"', dtsg_token_page_text)
         if not dtsg_token_regex:
             return
         dtsg_token = dtsg_token_regex.group(1)
+        if identifier_regex:
+            identifier = identifier_regex.group(1)
         payload = {
             '__user': '0',
             '__a': '1',
@@ -153,7 +158,10 @@ def get_facebook_stream_url_tahoe(facebook_video_url, anon=True):
             '__spin_b': 'trunk',
         }
     facebook_video_id = re.search(r'videos/(\d+?)/', facebook_video_url).group(1)
-    facebook_stream_fetch_url_final = facebook_stream_fetch_url.format(facebook_video_id=facebook_video_id)
+    if identifier:
+        facebook_stream_fetch_url_final = facebook_stream_fetch_identifier_url.format(facebook_video_id=facebook_video_id, identifier=identifier)
+    else:
+        facebook_stream_fetch_url_final = facebook_stream_fetch_url.format(facebook_video_id=facebook_video_id)
     video_page_text = requests.post(facebook_stream_fetch_url_final, data=payload, headers=headers, timeout=settings.REQUEST_FACEBOOK_TIMEOUT).text
     return extract_facebook_stream_url_from_text(video_page_text)
 
