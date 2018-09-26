@@ -17,8 +17,8 @@ ESL_EVENT_FAMILY_DICT = OrderedDict([
         'one_csgo',
         {
             'event_domain': 'live.esl-one.com',
-            'event_path': '/cologne',
-            'event_id_list': [11224],
+            'event_path': '/new-york',
+            'event_id_list': [11999],
             'event_facebook_list': ['ESLOneCSGO'],
             'weight': 2,
             'active': True,
@@ -33,7 +33,7 @@ ESL_EVENT_FAMILY_DICT = OrderedDict([
             'event_id_list': [4090],
             'event_facebook_list': ['ESLProLeagueCSGO'],
             'weight': 3,
-            'active': False,
+            'active': True,
         }
     ),
     (
@@ -41,7 +41,7 @@ ESL_EVENT_FAMILY_DICT = OrderedDict([
         {
             'event_domain': 'live.intelextrememasters.com',
             'event_path': '/',
-            'event_id_list': [11062],
+            'event_id_list': [11704],
             'event_facebook_list': ['WatchIEM'],
             'weight': 4,
             'active': False,

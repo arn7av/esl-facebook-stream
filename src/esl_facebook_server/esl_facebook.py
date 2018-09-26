@@ -18,7 +18,7 @@ esl_event_url = esl_url_root + '/event/bydomainurl?livedomain={esl_event_domain}
 esl_channel_url = esl_url_root + '/channel/eventchannels?pid={esl_event_id}&hideservice=web'
 facebook_graph_page_url = facebook_graph_url_root + '/{facebook_id}?fields=link,username&access_token={facebook_app_id}|{facebook_app_secret}'
 facebook_graph_page_live_videos_url = facebook_graph_url_root + '/{facebook_page_username}/live_videos?access_token={facebook_access_token}'
-facebook_stream_fetch_url = 'https://www.facebook.com/video/tahoe/async/{facebook_video_id}/?chain=true&isvideo=true&originalmediaid={facebook_video_id}&playerorigin=permalink&playersuborigin=tahoe&ispermalink=true&numcopyrightmatchedvideoplayedconsecutively=0&dpr=1'  # dpr = device pixel ratio
+facebook_stream_fetch_url = 'https://www.facebook.com/video/tahoe/async/{facebook_video_id}/?originalmediaid={facebook_video_id}&playerorigin=permalink&playersuborigin=tahoe&ispermalink=true&numcopyrightmatchedvideoplayedconsecutively=0&payloadtype=primary&dpr=1'  # dpr = device pixel ratio
 facebook_stream_fetch_identifier_url = 'https://www.facebook.com/video/tahoe/async/{facebook_video_id}/?originalmediaid={facebook_video_id}&playerorigin=permalink&playersuborigin=tahoe&ispermalink=true&numcopyrightmatchedvideoplayedconsecutively=0&payloadtype=all&storyidentifier={identifier}&dpr=1'
 facebook_video_embed_url = 'https://www.facebook.com/embedvideo/video.php'
 
