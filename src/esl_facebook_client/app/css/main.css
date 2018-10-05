@@ -127,22 +127,31 @@ a:hover {
     margin-left: 0px;
 }
 
-.dash-video-player {
-    background-color: #000000;
+.player-container {
+    justify-content: space-between;
 }
 
-.col-md-9 video {
+.dash-video-player {
+    background-color: #000000;
+
+}
+
+.dash-video-player video {
     width: 100%;
     height: auto;
     margin: auto;
 }
 
-.col-md-9 {
+.left-col {
     width: 65%;
     padding-top: 15px;
 }
 
-.col-md-3 {
+.left-col.max {
+    width: 100%;
+}
+
+.right-col {
     width: 35%;
 }
 
@@ -188,10 +197,10 @@ a:hover {
     z-index: 1000;
 }
 
-#player.theatre .col-md-3 {
+#player.theatre .right-col {
     /* 35% is too wide, resize to 400px (min: 22%, max: 29%) and put on right side of player */
     width: 350px;
-    min-width: 21%;
+    min-width: 22%;
     max-width: 29%;
 
     position: absolute;
@@ -204,7 +213,7 @@ a:hover {
     padding-right: 0;
 }
 
-#player.theatre .col-md-9 {
+#player.theatre .left-col {
     /* make video wrapper take up the rest of the space, aka 100% minus chat width */
     /* Also add 1px to hide the tiny gap in between video and chat */
     width: calc(100% - 350px + 1px);
@@ -224,6 +233,10 @@ a:hover {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+#player.theatre .left-col.max {
+    width: 100%;
+    max-width: 100%;
 }
 
 #player.theatre .dash-video-player #videoContainer {
@@ -412,11 +425,11 @@ div#legend-wrapper {
 }
 
 @media (min-width: 0px) and (max-width: 992px) {
-    .col-md-9 {
+    .left-col {
         width: 100%;
     }
 
-    .col-md-3 {
+    .right-col {
         width: 100%;
         padding: 0;
         margin-top: 15px;

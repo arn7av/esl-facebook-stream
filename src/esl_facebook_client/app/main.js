@@ -290,6 +290,10 @@ app.controller('DashController', function ($scope, $sce) {
     $scope.toggleShowChart = function () {
         $scope.showChart = !$scope.showChart;
     };
+    $scope.toggleSideBar = function () {
+        $('.dash-video-player').toggleClass('max');
+        $('.tabs-section').toggle();
+    };
     $scope.switchTwitchChatChannel = function () {
         $scope.twitchPrimary = !$scope.twitchPrimary;
     };

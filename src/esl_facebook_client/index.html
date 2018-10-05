@@ -233,8 +233,8 @@
         </div>
 
         <!--VIDEO PLAYER / CONTROLS -->
-        <div id="player" class="row flex-container-row">
-            <div class="dash-video-player col-md-9">
+        <div id="player" class="player-container flex-container-row">
+            <div class="dash-video-player left-col">
                 <div id="videoContainer" class="videoContainer">
                     <video></video>
                     <div id="video-caption"></div>
@@ -278,7 +278,7 @@
             </div>
 
             <!-- STATS TAB CONTENT -->
-            <div class="col-md-3 tabs-section flex-container-column">
+            <div class="tabs-section right-col flex-container-column">
                 <div class="flex-item-grow flex-container-column">
                     <ul class="nav nav-tabs" role="tablist" ng-style="darkMode ? darkNav : lightNav">
                       <li class="active">
@@ -434,6 +434,7 @@
                 <button id="toggle-alternate-server" class="btn btn-primary" ng-click="toggleAlternateServer()" ng-cloak>Alternate Server</button>
                 <button id="switch-twitch-chat-channel" class="btn btn-primary" ng-click="switchTwitchChatChannel()" ng-cloak>Switch Twitch Chat Channel</button>
                 <button id="toggle-show-chart" class="btn btn-primary" ng-click="toggleShowChart()" ng-cloak>Toggle Show Chart</button>
+                <button id="toggle-side-bar" class="btn btn-primary" ng-click="toggleSideBar()" ng-cloak>Toggle Sidebar</button>
             </div>
         </div>
 
