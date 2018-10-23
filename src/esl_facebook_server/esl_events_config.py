@@ -5,11 +5,11 @@ ESL_EVENT_FAMILY_DICT = OrderedDict([
         'one_dota',
         {
             'event_domain': 'live.esl-one.com',
-            'event_path': '/birmingham',
-            'event_id_list': [11092],
+            'event_path': '/hamburg',
+            'event_id_list': [12111],
             'event_facebook_list': ['WatchESLOne'],
             'weight': 1,
-            'active': False,
+            'active': True,
             'twitch_primary': True,
         }
     ),
@@ -21,7 +21,7 @@ ESL_EVENT_FAMILY_DICT = OrderedDict([
             'event_id_list': [11999],
             'event_facebook_list': ['ESLOneCSGO'],
             'weight': 2,
-            'active': True,
+            'active': False,
             'twitch_primary': True,
         }
     ),
@@ -34,6 +34,7 @@ ESL_EVENT_FAMILY_DICT = OrderedDict([
             'event_facebook_list': ['ESLProLeagueCSGO'],
             'weight': 3,
             'active': True,
+            'twitch_primary': True,
         }
     ),
     (
