@@ -11,7 +11,7 @@ greenlet==0.4.13
 gunicorn==19.8.1
 idna==2.7
 itsdangerous==0.24
-Jinja2==2.10
+Jinja2==2.11.3
 MarkupSafe==1.0
 pytz==2018.4
 redis==2.10.6
